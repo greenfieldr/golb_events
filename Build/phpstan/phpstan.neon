@@ -15,12 +15,12 @@ parameters:
         - ../../Classes
         - ../../Configuration
         - ../../Tests
-        - ../../ext_localconf.php
 
     excludePaths:
         # TCA override files only build arrays; the $GLOBALS['TCA'] access
-        # produces mixed types that cannot be analysed meaningfully.
-        - ../../Configuration/TCA/Overrides/* (?)
+        # produces mixed types that cannot be analysed meaningfully. The same
+        # applies to the hook registration in ext_localconf.php.
+        - ../../Configuration/TCA/Overrides/*
 
     treatPhpDocTypesAsCertain: false
 

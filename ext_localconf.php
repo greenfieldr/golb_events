@@ -10,4 +10,10 @@ declare(strict_types=1);
  * of the License, or any later version.
  */
 
+use Greenfieldr\GolbEvents\Hooks\DataHandlerHook;
+
 defined('TYPO3') || die();
+
+// Keep the generated occurrences in sync with the event pages
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass']['golb_events'] = DataHandlerHook::class;
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processCmdmapClass']['golb_events'] = DataHandlerHook::class;

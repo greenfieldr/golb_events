@@ -7,3 +7,10 @@ services:
   Greenfieldr\GolbEvents\:
     resource: '../Classes/*'
     exclude: '../Classes/Domain/Model/*'
+
+  # Instantiated by the DataHandler through GeneralUtility::makeInstance()
+  Greenfieldr\GolbEvents\Hooks\DataHandlerHook:
+    public: true
+
+  Greenfieldr\GolbEvents\Recurrence\OccurrenceSynchronizer:
+    public: true

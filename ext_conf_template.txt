@@ -1,0 +1,2 @@
+# cat=basic; type=int+; label=Horizon in years: Occurrences of recurring events are generated this many years ahead. Run the command "golbevents:occurrences:generate" regularly (scheduler) to extend the horizon.
+horizonYears = 2
