@@ -49,6 +49,13 @@ Setup
     and select the event root page(s) in the :guilabel:`Pages` field. See
     :ref:`editor-plugins`.
 
+#.  **Frontend:** The plugins come styled: the default templates add the
+    plain stylesheets of Golb and Golb Events to the page. Disable them
+    with the constant :typoscript:`plugin.tx_golbevents.settings.includeCss = 0`
+    if you want to style the markup yourself, and insert
+    :typoscript:`lib.golbEvents.event` in the page template to render
+    event pages, see :ref:`templating`.
+
 #.  **Optional:** Create locations and organizers in a folder of your
     choice with the :guilabel:`Web > List` module, see
     :ref:`editor-locations`.

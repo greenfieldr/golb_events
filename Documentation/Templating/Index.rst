@@ -11,27 +11,50 @@ Templating
 Templates
 =========
 
-The default templates are deliberately simple: an unordered list of event
-dates with title, date and time, location, organizer, abstract,
-categories and tags, and a table for the calendar. Copy them to your site
-package and register the path as described in
-:ref:`configuration-typoscript`. The layout and the pagination partial
-come from Golb and are shared with the blog plugins.
+The default templates render complete, styled lists and a detail view:
+teasers with a date badge, image, flags ("Cancelled", "Top event"),
+title, date and time, location, organizer, abstract, categories and tags;
+a paginated list; a month calendar; and the article of an event page with
+its dates, location and organizer details, "Add to calendar" and
+registration links and the schema.org structured data. The markup uses
+BEM style classes (``golbevents-event``, ``golbevents-event__title``,
+``golbevents-event--cancelled``, ...) on top of Golb's and is styled by a
+plain stylesheet without framework or colours, see :ref:`templating-css`.
+The layout, the pagination and the categories and tags partial come from
+Golb and are shared with the blog plugins.
 
 ..  code-block:: text
 
     EXT:golb/Resources/Private/
-    ├── Layouts/Default.html         Wraps the output in <div class="golb">
-    └── Partials/Pagination.html     Pagination of the event list
+    ├── Layouts/Default.html         Adds the stylesheets and wraps the output in <div class="golb">
+    └── Partials/
+        ├── Pagination.html          Pagination of the event list
+        └── Post/Terms.html          Categories and tags, optionally as filter links
 
     EXT:golb_events/Resources/Private/
-    ├── Partials/Occurrence.html     One event date in a list
-    └── Templates/Event/
-        ├── Calendar.html            Event calendar plugin
-        ├── List.html                Event list plugin
-        └── Upcoming.html            Upcoming events plugin
+    ├── Partials/
+    │   ├── Occurrence.html          One event date as teaser in a list
+    │   └── Event/
+    │       ├── Date.html            Date and time of an occurrence
+    │       ├── Flags.html           "Cancelled" and "Top event" badges
+    │       ├── Location.html        Location details of the detail rendering
+    │       └── Organizer.html       Organizer details of the detail rendering
+    └── Templates/
+        ├── Event/
+        │   ├── Calendar.html        Event calendar plugin
+        │   ├── List.html            Event list plugin (list with pagination)
+        │   └── Upcoming.html        Upcoming events plugin
+        └── Page/Event.html          Detail rendering of an event page (lib.golbEvents.event)
 
-Variables available in the templates:
+    EXT:golb_events/Resources/Public/Css/golb_events.css   Default stylesheet (with Golb's golb.css)
+
+To change the markup copy the files you need to your site package and
+register the path as described in :ref:`configuration-typoscript`; a
+file found in your path replaces the default file of the same name. The
+elements of the default templates can also be switched off one by one
+with the ``show`` settings, see :ref:`configuration-constants`.
+
+Variables available in the plugin templates:
 
 ..  list-table::
     :header-rows: 1
@@ -57,7 +80,8 @@ Variables available in the templates:
     *   -   ``demand``
         -   all
         -   The demand object, e.g. ``demand.mode`` or
-            ``demand.currentPage``
+            ``demand.currentPage``; the list view shows a "Show all events"
+            link while a tag or category filter is active
     *   -   ``contentElementData``
         -   all
         -   The tt_content record of the plugin
@@ -185,10 +209,40 @@ occurrence is listed on every day it covers.
 Rendering the event page
 ========================
 
-An event is rendered by the page template of the site. To access the
-event (for example to show the dates and the location in the page
-header), its structured data and the iCal download, add the data
-processor to the page object:
+An event is rendered by the page template of the site. The extension
+ships the TypoScript object :typoscript:`lib.golbEvents.event`, a
+FLUIDTEMPLATE that renders the complete article of the current page:
+flags, title and subtitle; the next date (or the last one with a note
+once the event is over), location and organizer; an "Add to calendar"
+link to the :ref:`iCal download <configuration-ical>` and the
+registration link; the first media file, the abstract and the page
+content (``styles.content.get`` of fluid_styled_content); the upcoming
+dates of a recurring event; the location (address, map and website) and
+organizer (email, phone, website) details; categories and tags; and the
+schema.org structured data as ``<script type="application/ld+json">``.
+
+Insert it in the page template of the site in place of the content:
+
+..  code-block:: html
+
+    <f:cObject typoscriptObjectPath="lib.golbEvents.event" data="{data}"/>
+
+or let TypoScript replace the content of event pages:
+
+..  code-block:: typoscript
+
+    [page["doktype"] == 42]
+    page.10.variables.content =< lib.golbEvents.event
+    [END]
+
+The template :file:`Templates/Page/Event.html` and the partials it uses
+are overridden like the plugin templates (the ``Page/`` folder below
+:typoscript:`plugin.tx_golbevents.view.templateRootPath`); the object
+copies :typoscript:`plugin.tx_golbevents.settings`, so the ``show``
+settings, the image sizes and the filter links apply to it as well.
+
+If you prefer to build the detail view yourself, add the data processor
+to the page object and work with the event:
 
 ..  code-block:: typoscript
 
@@ -199,20 +253,25 @@ processor to the page object:
             10 = Greenfieldr\GolbEvents\DataProcessing\EventSchemaProcessor
             10.as = event
             10.schemaAs = eventSchema
+            10.occurrenceAs = nextOccurrence
+            10.upcomingAs = upcomingOccurrences
+            10.upcomingLimit = 5
         }
     }
 
 ``event`` is then the :php:`Event` object of the current page (null for
 pages that are no events), ``eventSchema`` the schema.org data as array
-and ``eventSchemaJson`` the same as JSON for a ``<script>`` tag. The dates
-of the structured data are those of the next occurrence (or the last one
-once the event is over).
+and ``eventSchemaJson`` the same as JSON for a ``<script>`` tag,
+``nextOccurrence`` the next date (or the last one once the event is over)
+and ``upcomingOccurrences`` the next ``upcomingLimit`` dates that have not
+ended (none for past events). The dates of the structured data are those
+of the next occurrence.
 
 ..  code-block:: html
 
     <f:if condition="{event}">
         <p class="event-meta">
-            {event.start -> f:format.date(format: 'd.m.Y H:i')}
+            {nextOccurrence.start -> f:format.date(format: 'd.m.Y H:i')}
             <f:if condition="{event.locationName}">, {event.locationName}</f:if>
             <f:if condition="{event.cancelled}"> (cancelled)</f:if>
         </p>
@@ -221,8 +280,23 @@ once the event is over).
     </f:if>
 
 The page type ``1764`` of the download link is the default of the constant
-:typoscript:`plugin.tx_golbevents.settings.icalTypeNum`, see
-:ref:`configuration-ical`.
+:typoscript:`plugin.tx_golbevents.settings.icalTypeNum`, available in the
+templates as ``settings.icalTypeNum``, see :ref:`configuration-ical`.
+
+..  _templating-filter-links:
+
+Filter links
+============
+
+With the constant
+:typoscript:`plugin.tx_golbevents.settings.filterLinks.enabled` the
+categories and tags of the teasers and the detail rendering link to the
+Event list plugin, filtered by that term. The links point to the page
+:typoscript:`filterLinks.pageUid` (by default the current page) and carry
+the demand argument of the plugin namespace, e.g.
+``tx_golbevents_listview[demand][tag]=3``. The Event list plugin on the
+target page has to allow demand overwrites, see
+:ref:`configuration-demand`.
 
 ..  _templating-pagination:
 
@@ -238,3 +312,41 @@ or explicit arguments if you need that.
 The labels are translated with the keys ``pagination.first``,
 ``pagination.previous``, ``pagination.next`` and ``pagination.last`` of
 :file:`EXT:golb_events/Resources/Private/Language/locallang.xlf`.
+
+..  _templating-css:
+
+Styling
+=======
+
+The default stylesheet :file:`Resources/Public/Css/golb_events.css`
+builds on Golb's :file:`golb.css` (custom properties, lists, flags,
+terms, pagination and the detail layout) and adds the event blocks: the
+date badge, the facts and actions of the detail rendering, the dates,
+location and organizer sections and the calendar grid, which turns into
+a list of the days with events on small screens. Both files are plain
+CSS without framework or colours of their own: borders and surfaces are
+translucent greys and secondary text is dimmed, so the output follows the
+font, text colour and background of the site.
+
+Golb's layout adds the files listed in
+:typoscript:`plugin.tx_golbevents.settings.css` with :html:`<f:asset.css>`
+as long as :typoscript:`settings.includeCss` is enabled. Three ways to
+adapt the look:
+
+#.  **Tweak:** Override the custom properties on ``.golb`` in your own
+    stylesheet (spacing, border radius, border and surface tints), see
+    the Golb manual.
+
+#.  **Extend or replace:** Add your file to the list or remove the
+    defaults:
+
+    ..  code-block:: typoscript
+
+        plugin.tx_golbevents.settings.css {
+            golbEvents >
+            site = EXT:site_package/Resources/Public/Css/events.css
+        }
+
+#.  **Switch off:** Set the constant
+    :typoscript:`plugin.tx_golbevents.settings.includeCss = 0` and style
+    the markup in the stylesheet of the site, or override the templates.

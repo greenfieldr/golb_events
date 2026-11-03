@@ -22,6 +22,13 @@ and related pages work for events as well.
   top events
 - iCal download of every event page and schema.org structured data through
   a data processor
+- A complete frontend out of the box: teasers with date badge, image,
+  flags, location and organizer, a responsive month calendar, a detail
+  rendering of the event page (`lib.golbEvents.event`) with dates, location
+  and organizer details, "Add to calendar" link and structured data, and a
+  plain stylesheet without framework or brand colours that adapts to the
+  site. Every piece can be switched off, overridden or replaced with your
+  own templates and CSS.
 
 ## Compatibility
 

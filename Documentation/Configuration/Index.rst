@@ -41,9 +41,28 @@ It also defines the page object of the :ref:`iCal download
 
     Layout paths, same mechanism as the template paths.
 
+..  confval:: plugin.tx_golbevents.settings.includeCss
+    :name: typoscript-includeCss
+    :type: boolean (constant)
+    :default: ``1``
+
+    Whether Golb's layout adds the stylesheets of
+    :ref:`settings.css <typoscript-css>` to the page. Disable it to style
+    the markup yourself.
+
+..  confval:: plugin.tx_golbevents.settings.css
+    :name: typoscript-css
+    :type: array
+
+    Stylesheets added to the page while includeCss is enabled, by default
+    ``golb = EXT:golb/Resources/Public/Css/golb.css`` and
+    ``golbEvents = EXT:golb_events/Resources/Public/Css/golb_events.css``.
+    Remove or add entries to replace or extend the default styles, see
+    :ref:`templating-css`.
+
 ..  confval:: plugin.tx_golbevents.settings.dateFormat
     :name: typoscript-dateFormat
-    :type: string
+    :type: string (constant)
     :default: ``%d.%m.%Y``
 
     Date format used by the default templates, see the
@@ -51,18 +70,26 @@ It also defines the page object of the :ref:`iCal download
 
 ..  confval:: plugin.tx_golbevents.settings.timeFormat
     :name: typoscript-timeFormat
-    :type: string
+    :type: string (constant)
     :default: ``%H:%M``
 
     Time format used by the default templates.
 
 ..  confval:: plugin.tx_golbevents.settings.calendar.firstDayOfWeek
     :name: typoscript-firstDayOfWeek
-    :type: integer
+    :type: integer (constant)
     :default: ``1``
 
     First day of the week in the calendar plugin: ``1`` for Monday up to
     ``7`` for Sunday.
+
+..  confval:: plugin.tx_golbevents.settings.filterLinks.namespace
+    :name: typoscript-filterLinks-namespace
+    :type: string
+    :default: ``tx_golbevents_listview``
+
+    Plugin namespace of the demand arguments the
+    :ref:`filter links <templating-filter-links>` carry.
 
 ..  confval:: plugin.tx_golbevents.settings.icalTypeNum
     :name: typoscript-icalTypeNum
@@ -70,6 +97,90 @@ It also defines the page object of the :ref:`iCal download
     :default: ``1764``
 
     Page type (``typeNum``) that delivers an event page as iCalendar file.
+
+The object :typoscript:`lib.golbEvents.event` renders the detail view of
+an event page, see :ref:`templating-detail`. It copies
+:typoscript:`plugin.tx_golbevents.settings`, so settings that should
+apply to the plugins and the detail rendering alike are best set as
+constants.
+
+..  _configuration-constants:
+
+Constants
+=========
+
+The following constants are available in the constant editor (category
+"plugin.tx_golbevents") and are used by the default templates:
+
+..  list-table::
+    :header-rows: 1
+
+    *   -   Constant
+        -   Default
+        -   Description
+    *   -   ``settings.includeCss``
+        -   ``1``
+        -   Adds the default stylesheets to the page, see
+            :ref:`templating-css`
+    *   -   ``settings.dateFormat``, ``settings.timeFormat``
+        -   ``%d.%m.%Y``, ``%H:%M``
+        -   Formats of the event dates and times
+    *   -   ``settings.show.image``
+        -   ``1``
+        -   The first file of the page field "Media" as teaser and
+            detail image
+    *   -   ``settings.show.dateBadge``
+        -   ``1``
+        -   The day and month badge in front of every teaser
+    *   -   ``settings.show.abstract``
+        -   ``1``
+        -   The abstract of the event
+    *   -   ``settings.show.location``
+        -   ``1``
+        -   The location in teasers and the detail rendering
+    *   -   ``settings.show.organizer``
+        -   ``1``
+        -   The organizer in teasers and the detail rendering
+    *   -   ``settings.show.categories``
+        -   ``1``
+        -   The categories of the event
+    *   -   ``settings.show.tags``
+        -   ``1``
+        -   The tags of the event
+    *   -   ``settings.show.flags``
+        -   ``1``
+        -   The "Cancelled" and "Top event" badges
+    *   -   ``settings.show.ical``
+        -   ``1``
+        -   The "Add to calendar" link of the detail rendering (only
+            while the event has upcoming dates)
+    *   -   ``settings.show.dates``
+        -   ``1``
+        -   The list of upcoming dates of a recurring event in the detail
+            rendering
+    *   -   ``settings.imageWidth.teaser``
+        -   ``640``
+        -   Width of the teaser image in pixels
+    *   -   ``settings.imageWidth.detail``
+        -   ``1280``
+        -   Width of the image in the detail rendering in pixels
+    *   -   ``settings.filterLinks.enabled``
+        -   ``0``
+        -   Link categories and tags to the filtered Event list, see
+            :ref:`templating-filter-links`
+    *   -   ``settings.filterLinks.pageUid``
+        -   ``0``
+        -   Page with the Event list plugin the filter links point to,
+            ``0`` for the current page
+    *   -   ``settings.calendar.firstDayOfWeek``
+        -   ``1``
+        -   First day of the week in the calendar
+    *   -   ``settings.upcomingLimit``
+        -   ``5``
+        -   Number of upcoming dates listed in the detail rendering
+    *   -   ``settings.icalTypeNum``
+        -   ``1764``
+        -   Page type of the iCal download, see :ref:`configuration-ical`
 
 The TypoScript constants :typoscript:`plugin.tx_golbevents.view.templateRootPath`,
 :typoscript:`partialRootPath` and :typoscript:`layoutRootPath` are
