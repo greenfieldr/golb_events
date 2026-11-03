@@ -47,7 +47,7 @@ It also defines the page object of the :ref:`iCal download
     :default: ``1``
 
     Whether Golb's layout adds the stylesheets of
-    :ref:`settings.css <typoscript-css>` to the page. Disable it to style
+    ``settings.css`` to the page. Disable it to style
     the markup yourself.
 
 ..  confval:: plugin.tx_golbevents.settings.css
