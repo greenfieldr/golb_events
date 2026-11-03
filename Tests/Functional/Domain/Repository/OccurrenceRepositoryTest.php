@@ -159,6 +159,29 @@ final class OccurrenceRepositoryTest extends AbstractOccurrenceTestCase
     }
 
     #[Test]
+    public function findUpcomingOfEventListsTheDatesThatHaveNotEnded(): void
+    {
+        $now = new \DateTimeImmutable('2026-06-01 12:00:00', new \DateTimeZone('UTC'));
+        $beta = $this->get(EventRepository::class)->findByUid(4);
+        self::assertInstanceOf(Event::class, $beta);
+
+        $upcoming = $this->subject->findUpcomingOfEvent($beta, $now);
+
+        self::assertNotSame([], $upcoming);
+        foreach ($upcoming as $occurrence) {
+            self::assertSame(4, $occurrence->getEvent()?->getUid());
+            self::assertGreaterThanOrEqual($now->getTimestamp(), $occurrence->getEnd()?->getTimestamp());
+        }
+        $starts = array_map(static fn(Occurrence $occurrence): int => (int)$occurrence->getStart()?->getTimestamp(), $upcoming);
+        $sorted = $starts;
+        sort($sorted);
+        self::assertSame($sorted, $starts, 'sorted by start');
+
+        self::assertCount(1, $this->subject->findUpcomingOfEvent($beta, $now, 1));
+        self::assertSame([], $this->subject->findUpcomingOfEvent($beta, new \DateTimeImmutable('2999-01-01', new \DateTimeZone('UTC'))));
+    }
+
+    #[Test]
     public function findPageIdsBelowCollectsTheWholeTree(): void
     {
         self::assertSame([3, 4, 5, 6, 7, 11, 12, 13], $this->subject->findPageIdsBelow([2]), 'the hidden page 10 is skipped');

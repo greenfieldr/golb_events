@@ -82,7 +82,7 @@ final class EventControllerTest extends FunctionalTestCase
      * @param array<string, string|int> $settings FlexForm settings
      * @param int[] $categories uids of categories selected in the plugin
      */
-    private function createPlugin(string $cType, string $pages, array $settings = [], array $categories = []): void
+    private function createPlugin(string $cType, string $pages, array $settings = [], array $categories = [], int $uid = 100): void
     {
         $fields = '';
         foreach ($settings as $name => $value) {
@@ -98,10 +98,10 @@ final class EventControllerTest extends FunctionalTestCase
 
         $connectionPool = $this->get(ConnectionPool::class);
         $connectionPool->getConnectionForTable('tt_content')->insert('tt_content', [
-            'uid' => 100,
+            'uid' => $uid,
             'pid' => 1,
             'colPos' => 0,
-            'sorting' => 1,
+            'sorting' => $uid,
             'CType' => $cType,
             'header' => 'Plugin',
             'pages' => $pages,
@@ -111,7 +111,7 @@ final class EventControllerTest extends FunctionalTestCase
         foreach ($categories as $sorting => $categoryUid) {
             $connectionPool->getConnectionForTable('sys_category_record_mm')->insert('sys_category_record_mm', [
                 'uid_local' => $categoryUid,
-                'uid_foreign' => 100,
+                'uid_foreign' => $uid,
                 'tablenames' => 'tt_content',
                 'fieldname' => 'categories',
                 'sorting' => $sorting + 1,
@@ -121,7 +121,9 @@ final class EventControllerTest extends FunctionalTestCase
     }
 
     /**
-     * @param array<string, int|string> $queryParameters flat parameter names, e.g. "tx_golbevents_listview[demand][tag]"
+     * @param array<string, int|string> $queryParameters flat parameter names, e.g. "tx_golbevents_listview[demand][tag]";
+     *                                                   "golbEventsSettings" overrides plugin.tx_golbevents.settings
+     *                                                   for the request, see the Rendering.typoscript fixture
      */
     private function render(array $queryParameters = []): string
     {
@@ -146,7 +148,7 @@ final class EventControllerTest extends FunctionalTestCase
         $html = $this->render();
 
         self::assertSame(4, $this->countEvents($html));
-        self::assertSame(2, substr_count($html, 'Spring concert'), 'two dates of the same event');
+        self::assertSame(2, substr_count($html, '>Spring concert</a>'), 'two dates of the same event');
         self::assertStringContainsString('Summer festival', $html);
         self::assertStringContainsString('Autumn walk', $html);
         self::assertStringNotContainsString('Old meetup', $html);
@@ -193,7 +195,7 @@ final class EventControllerTest extends FunctionalTestCase
         $html = $this->render();
 
         self::assertSame(2, $this->countEvents($html));
-        self::assertSame(2, substr_count($html, 'Old meetup'));
+        self::assertSame(2, substr_count($html, '>Old meetup</a>'));
         self::assertLessThan(strpos($html, '04.05.2001'), strpos($html, '11.05.2001'));
     }
 
@@ -242,7 +244,7 @@ final class EventControllerTest extends FunctionalTestCase
         $html = $this->render();
 
         self::assertSame(2, $this->countEvents($html));
-        self::assertSame(2, substr_count($html, 'Spring concert'));
+        self::assertSame(2, substr_count($html, '>Spring concert</a>'));
         self::assertStringNotContainsString('Summer festival', $html);
     }
 
@@ -261,7 +263,7 @@ final class EventControllerTest extends FunctionalTestCase
 
         $html = $this->render();
         self::assertSame(2, $this->countEvents($html));
-        self::assertSame(2, substr_count($html, 'Spring concert'));
+        self::assertSame(2, substr_count($html, '>Spring concert</a>'));
     }
 
     #[Test]
@@ -311,13 +313,70 @@ final class EventControllerTest extends FunctionalTestCase
         // Cancelled, location record, free text location and organizer, meta data
         self::assertStringContainsString('golbevents-event--cancelled', $html);
         self::assertStringContainsString('Cancelled', $html);
-        self::assertStringContainsString('Location: Carnegie Hall', $html);
-        self::assertStringContainsString('Location: Town hall', $html);
-        self::assertStringContainsString('Organizer: Golb Society', $html);
+        self::assertStringContainsString('<span class="golb-flag golb-flag--cancelled">Cancelled</span>', $html);
+        self::assertStringContainsString('<span class="golb-flag golb-flag--top">Top event</span>', $html);
+        self::assertStringContainsString('Location:</span> Carnegie Hall, New York', $html);
+        self::assertStringContainsString('Location:</span> Town hall', $html);
+        self::assertStringContainsString('Organizer:</span> Golb Society', $html);
         self::assertStringContainsString('A concert.', $html);
-        self::assertMatchesRegularExpression('/Categories:\s+News/', $html);
-        self::assertMatchesRegularExpression('/Tags:\s+php/', $html);
+        self::assertMatchesRegularExpression('/Categories:<\/span>\s+<span class="golb-term">News<\/span>/', $html);
+        self::assertMatchesRegularExpression('/Tags:<\/span>\s+<span class="golb-term">php<\/span>/', $html);
         self::assertStringContainsString('href="/events/spring-concert"', $html);
+        self::assertStringContainsString('Event details', $html);
+        // Date badge
+        self::assertStringContainsString('<span class="golbevents-badge__day">10</span>', $html);
+        self::assertStringContainsString('<span class="golbevents-badge__month">Mar</span>', $html);
+        self::assertStringContainsString('3 Jul</span>', $html, 'the badge of a multi day event shows the last day');
+    }
+
+    #[Test]
+    public function occurrencePartialLeavesDisabledElementsOut(): void
+    {
+        $this->createPlugin('golbevents_listview', '2', ['mode' => 'all']);
+
+        $html = $this->render(['golbEventsSettings' => 'show.badgeFlagsLocation=0']);
+
+        self::assertStringNotContainsString('golbevents-badge', $html);
+        self::assertStringNotContainsString('golb-flag', $html);
+        self::assertStringNotContainsString('Location:', $html);
+        self::assertStringContainsString('golbevents-event--cancelled', $html, 'the modifier class stays');
+        self::assertStringContainsString('Organizer:</span> Golb Society', $html);
+    }
+
+    #[Test]
+    public function defaultStylesheetsAreAddedOnceAndCanBeDisabled(): void
+    {
+        $this->createPlugin('golbevents_listview', '2');
+        $this->createPlugin('golbevents_upcomingview', '2', [], [], 101);
+
+        $html = $this->render();
+
+        self::assertSame(1, substr_count($html, 'Resources/Public/Css/golb.css'));
+        self::assertSame(1, substr_count($html, 'Resources/Public/Css/golb_events.css'));
+
+        $html = $this->render(['golbEventsSettings' => 'includeCss=0']);
+
+        self::assertStringNotContainsString('.css', $html);
+        self::assertStringContainsString('<div class="golb">', $html);
+    }
+
+    #[Test]
+    public function termsLinkToTheFilteredListWhenEnabled(): void
+    {
+        $this->createPlugin('golbevents_listview', '2', ['allowDemandOverwrite' => 1]);
+
+        $html = $this->render(['golbEventsSettings' => 'filterLinks.enabled=1']);
+
+        self::assertStringContainsString('class="golb-term golb-term--link"', $html);
+        self::assertStringContainsString('tx_golbevents_listview%5Bdemand%5D%5Btag%5D=1', $html);
+        self::assertStringContainsString('tx_golbevents_listview%5Bdemand%5D%5Bcategory%5D=1', $html);
+        self::assertStringNotContainsString('golb-filter', $html, 'no filter is active');
+
+        $html = $this->render(['tx_golbevents_listview[demand][tag]' => 2, 'golbEventsSettings' => 'filterLinks.enabled=1']);
+
+        self::assertSame(1, $this->countEvents($html));
+        self::assertStringContainsString('Summer festival', $html);
+        self::assertStringContainsString('Show all events', $html);
     }
 
     #[Test]
@@ -331,7 +390,7 @@ final class EventControllerTest extends FunctionalTestCase
         ]);
 
         self::assertStringContainsString('golbevents-calendar__title">March 2099', $html);
-        self::assertSame(2, substr_count($html, 'Spring concert'));
+        self::assertSame(2, substr_count($html, '>Spring concert</a>'));
         self::assertSame(2, substr_count($html, 'golbevents-calendar__day--has-events'));
         self::assertStringContainsString('19:30', $html);
         self::assertStringNotContainsString('Summer festival', $html);

@@ -62,6 +62,24 @@ final class EventSchemaProcessorTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function processorProvidesTheNextAndTheUpcomingOccurrences(): void
+    {
+        $html = $this->render(3);
+
+        self::assertStringContainsString('[next:2099-03-10]', $html);
+        self::assertStringContainsString('[upcoming:2099-03-10;2099-03-31;]', $html);
+    }
+
+    #[Test]
+    public function pastEventHasNoUpcomingOccurrences(): void
+    {
+        $html = $this->render(6);
+
+        self::assertStringContainsString('[next:2001-05-11]', $html);
+        self::assertStringContainsString('[upcoming:]', $html);
+    }
+
+    #[Test]
     public function cancelledEventIsMarkedAsCancelled(): void
     {
         $html = $this->render(5);
@@ -85,6 +103,8 @@ final class EventSchemaProcessorTest extends FunctionalTestCase
 
         self::assertStringContainsString('[event::]', $html);
         self::assertStringContainsString('[schema::]', $html);
+        self::assertStringContainsString('[next:]', $html);
+        self::assertStringContainsString('[upcoming:]', $html);
         self::assertStringNotContainsString('application/ld+json', $html);
     }
 }

@@ -9,6 +9,8 @@ page {
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
 [event:{event.title}:{event.locationName}]
 [schema:{eventSchema.startDate}:{eventSchema.eventStatus}]
+[next:{nextOccurrence.start -> f:format.date(format: 'Y-m-d')}]
+[upcoming:<f:for each="{upcomingOccurrences}" as="occurrence">{occurrence.start -> f:format.date(format: 'Y-m-d')};</f:for>]
 <f:if condition="{eventSchemaJson}"><script type="application/ld+json">{eventSchemaJson -> f:format.raw()}</script></f:if>
 </html>
         )

@@ -2,3 +2,20 @@ config.no_cache = 1
 
 page = PAGE
 page.10 < styles.content.get
+
+# Tests override plugin settings with the request parameter
+# "golbEventsSettings", e.g. ?golbEventsSettings=includeCss=0
+[request.getQueryParams()['golbEventsSettings'] ?? '' == 'show.badgeFlagsLocation=0']
+    plugin.tx_golbevents_listview.settings.show {
+        dateBadge = 0
+        flags = 0
+        location = 0
+    }
+[END]
+[request.getQueryParams()['golbEventsSettings'] ?? '' == 'includeCss=0']
+    plugin.tx_golbevents_listview.settings.includeCss = 0
+    plugin.tx_golbevents_upcomingview.settings.includeCss = 0
+[END]
+[request.getQueryParams()['golbEventsSettings'] ?? '' == 'filterLinks.enabled=1']
+    plugin.tx_golbevents_listview.settings.filterLinks.enabled = 1
+[END]
