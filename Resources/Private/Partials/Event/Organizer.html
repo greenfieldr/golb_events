@@ -1,0 +1,32 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<f:comment>
+    Renders the organizer of an event in the detail rendering: the name
+    and, for an organizer record, email, phone, website and description.
+
+    Variables: event (Event), settings (plugin settings).
+</f:comment>
+<f:if condition="{settings.show.organizer} && {event.organizerName}">
+    <section class="golbevents-organizer">
+        <h2 class="golbevents-organizer__title"><f:translate key="event.organizer" extensionName="GolbEvents"/></h2>
+        <p class="golbevents-organizer__name">{event.organizerName}</p>
+        <f:if condition="{event.organizer}">
+            <f:if condition="{event.organizer.email} || {event.organizer.phone} || {event.organizer.link}">
+                <ul class="golbevents-organizer__contact">
+                    <f:if condition="{event.organizer.email}">
+                        <li><span class="golbevents-event__label"><f:translate key="event.email" extensionName="GolbEvents"/>:</span> <f:link.email email="{event.organizer.email}"/></li>
+                    </f:if>
+                    <f:if condition="{event.organizer.phone}">
+                        <li><span class="golbevents-event__label"><f:translate key="event.phone" extensionName="GolbEvents"/>:</span> <a href="tel:{event.organizer.phone -> f:format.stripTags() -> f:replace(search: ' ', replace: '')}">{event.organizer.phone}</a></li>
+                    </f:if>
+                    <f:if condition="{event.organizer.link}">
+                        <li><f:link.typolink parameter="{event.organizer.link}" class="golbevents-organizer__link"><f:translate key="event.website" extensionName="GolbEvents"/></f:link.typolink></li>
+                    </f:if>
+                </ul>
+            </f:if>
+            <f:if condition="{event.organizer.description}">
+                <p class="golbevents-organizer__description">{event.organizer.description -> f:format.nl2br()}</p>
+            </f:if>
+        </f:if>
+    </section>
+</f:if>
+</html>

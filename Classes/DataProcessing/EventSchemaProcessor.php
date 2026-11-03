@@ -27,11 +27,16 @@ use TYPO3\CMS\Frontend\ContentObject\DataProcessorInterface;
  *   dataProcessing.10 = Greenfieldr\GolbEvents\DataProcessing\EventSchemaProcessor
  *   dataProcessing.10.as = event
  *   dataProcessing.10.schemaAs = eventSchema
+ *   dataProcessing.10.occurrenceAs = nextOccurrence
+ *   dataProcessing.10.upcomingAs = upcomingOccurrences
+ *   dataProcessing.10.upcomingLimit = 5
  *
  * {event} is the Event object (null for pages that are no events),
  * {eventSchema} the structured data as array and {eventSchemaJson} as JSON
  * string for a <script type="application/ld+json"> tag. The next
- * occurrence (or the last one for past events) provides the dates.
+ * occurrence (or the last one for past events) provides the dates; it is
+ * available as {nextOccurrence}, the upcoming occurrences (none for past
+ * events) as {upcomingOccurrences}.
  */
 class EventSchemaProcessor implements DataProcessorInterface
 {
@@ -57,17 +62,26 @@ class EventSchemaProcessor implements DataProcessorInterface
     ): array {
         $eventVariable = (string)$cObj->stdWrapValue('as', $processorConfiguration, 'event');
         $schemaVariable = (string)$cObj->stdWrapValue('schemaAs', $processorConfiguration, 'eventSchema');
+        $occurrenceVariable = (string)$cObj->stdWrapValue('occurrenceAs', $processorConfiguration, 'nextOccurrence');
+        $upcomingVariable = (string)$cObj->stdWrapValue('upcomingAs', $processorConfiguration, 'upcomingOccurrences');
+        $upcomingLimit = (int)$cObj->stdWrapValue('upcomingLimit', $processorConfiguration, 5);
 
         $uid = (int)($cObj->data['uid'] ?? 0);
         $event = $uid > 0 ? $this->eventRepository->findByUid($uid) : null;
+        $occurrence = null;
+        $upcoming = [];
         $schema = [];
         if ($event instanceof Event) {
-            $occurrence = $this->occurrenceRepository->findNextOfEvent($event, $this->now());
+            $now = $this->now();
+            $occurrence = $this->occurrenceRepository->findNextOfEvent($event, $now);
+            $upcoming = $this->occurrenceRepository->findUpcomingOfEvent($event, $now, $upcomingLimit);
             $url = $cObj->typoLink_URL(['parameter' => $uid, 'forceAbsoluteUrl' => true]);
             $schema = $this->schemaBuilder->build($event, $occurrence, $url);
         }
 
         $processedData[$eventVariable] = $event instanceof Event ? $event : null;
+        $processedData[$occurrenceVariable] = $occurrence;
+        $processedData[$upcomingVariable] = $upcoming;
         $processedData[$schemaVariable] = $schema;
         $processedData[$schemaVariable . 'Json'] = $schema === []
             ? ''

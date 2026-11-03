@@ -140,6 +140,34 @@ class OccurrenceRepository extends Repository
     }
 
     /**
+     * The upcoming occurrences of an event (those that have not ended at the
+     * given time) sorted by start, at most $limit (0 for all).
+     *
+     * @return Occurrence[]
+     */
+    public function findUpcomingOfEvent(Event $event, \DateTimeImmutable $now, int $limit = 0): array
+    {
+        $query = $this->createQuery();
+        $query->matching($query->logicalAnd(
+            $query->equals('event', $event),
+            $query->greaterThanOrEqual('end', $now->getTimestamp())
+        ));
+        $query->setOrderings(['start' => 'ASC']);
+        if ($limit > 0) {
+            $query->setLimit($limit);
+        }
+
+        $occurrences = [];
+        foreach ($query->execute() as $occurrence) {
+            if ($occurrence instanceof Occurrence) {
+                $occurrences[] = $occurrence;
+            }
+        }
+
+        return $occurrences;
+    }
+
+    /**
      * The uids of all pages below the root pages (not the root pages
      * themselves), like Golb collects blog posts.
      *

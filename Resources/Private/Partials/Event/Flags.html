@@ -1,0 +1,17 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<f:comment>
+    Renders the "Cancelled" and "Top event" flags of an event as badges.
+
+    Variables: event (Event), settings (plugin settings).
+</f:comment>
+<f:if condition="{settings.show.flags} && ({event.cancelled} || {event.topPost})">
+    <p class="golbevents-event__flags">
+        <f:if condition="{event.cancelled}">
+            <span class="golb-flag golb-flag--cancelled"><f:translate key="event.cancelled" extensionName="GolbEvents"/></span>
+        </f:if>
+        <f:if condition="{event.topPost}">
+            <span class="golb-flag golb-flag--top"><f:translate key="event.topEvent" extensionName="GolbEvents"/></span>
+        </f:if>
+    </p>
+</f:if>
+</html>

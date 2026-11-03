@@ -11,5 +11,57 @@ plugin.tx_golbevents {
     settings {
         # cat=plugin.tx_golbevents/a; type=int+; label=Page type (typeNum) of the iCal download of an event page
         icalTypeNum = 1764
+
+        # cat=plugin.tx_golbevents/enable/100; type=boolean; label=Include the default CSS: Adds the plain stylesheets of Golb and Golb Events to the page. Disable it to style the markup yourself.
+        includeCss = 1
+        # cat=plugin.tx_golbevents/a/100; type=string; label=Date format: Format of the event dates in the default templates (f:format.date)
+        dateFormat = %d.%m.%Y
+        # cat=plugin.tx_golbevents/a/110; type=string; label=Time format: Format of the event times in the default templates (f:format.date)
+        timeFormat = %H:%M
+
+        show {
+            # cat=plugin.tx_golbevents/enable/200; type=boolean; label=Show image: The first file of the page field "Media" as teaser and detail image
+            image = 1
+            # cat=plugin.tx_golbevents/enable/210; type=boolean; label=Show date badge: Day and month badge in front of every teaser
+            dateBadge = 1
+            # cat=plugin.tx_golbevents/enable/220; type=boolean; label=Show abstract
+            abstract = 1
+            # cat=plugin.tx_golbevents/enable/230; type=boolean; label=Show location
+            location = 1
+            # cat=plugin.tx_golbevents/enable/240; type=boolean; label=Show organizer
+            organizer = 1
+            # cat=plugin.tx_golbevents/enable/250; type=boolean; label=Show categories
+            categories = 1
+            # cat=plugin.tx_golbevents/enable/260; type=boolean; label=Show tags
+            tags = 1
+            # cat=plugin.tx_golbevents/enable/270; type=boolean; label=Show flags: "Cancelled" and "Top event" badges
+            flags = 1
+            # cat=plugin.tx_golbevents/enable/280; type=boolean; label=Show iCal download: "Add to calendar" link in the detail rendering (lib.golbEvents.event)
+            ical = 1
+            # cat=plugin.tx_golbevents/enable/290; type=boolean; label=Show upcoming dates: List of the next dates of a recurring event in the detail rendering
+            dates = 1
+        }
+
+        imageWidth {
+            # cat=plugin.tx_golbevents/dims/100; type=int+; label=Teaser image width: Width of the image in the lists, in pixels
+            teaser = 640
+            # cat=plugin.tx_golbevents/dims/110; type=int+; label=Detail image width: Width of the image in the detail rendering, in pixels
+            detail = 1280
+        }
+
+        filterLinks {
+            # cat=plugin.tx_golbevents/enable/300; type=boolean; label=Link categories and tags: Links every category and tag to the Event list plugin, filtered by that term. The Event list plugin has to allow demand overwrites.
+            enabled = 0
+            # cat=plugin.tx_golbevents/links/100; type=int+; label=List page: Page with the Event list plugin the category and tag links point to (0 = the current page)
+            pageUid = 0
+        }
+
+        calendar {
+            # cat=plugin.tx_golbevents/a/200; type=int+; label=First day of the week: 1 = Monday ... 7 = Sunday
+            firstDayOfWeek = 1
+        }
+
+        # cat=plugin.tx_golbevents/a/300; type=int+; label=Number of upcoming dates: Dates listed in the detail rendering of a recurring event
+        upcomingLimit = 5
     }
 }

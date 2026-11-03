@@ -9,6 +9,19 @@ regenerated with git-cliff on every release.
 
 ### Features
 
+- **frontend:** Complete default frontend: teasers with date badge, image,
+  flags, location, organizer and categories and tags as optional filter
+  links, a responsive month calendar, a plain stylesheet
+  (`Resources/Public/Css/golb_events.css`, on top of Golb's) added by the
+  layout and switchable with the constant `includeCss`, and `show.*`
+  constants to leave single elements out
+- **frontend:** Detail rendering of event pages with `lib.golbEvents.event`
+  (facts, "Add to calendar" and registration links, content, upcoming
+  dates, location and organizer details, structured data); the
+  `EventSchemaProcessor` provides the next and the upcoming occurrences
+  (`occurrenceAs`, `upcomingAs`, `upcomingLimit`) and
+  `OccurrenceRepository::findUpcomingOfEvent()` finds them
+
 - Event page type (doktype 42) with start and end as wall clock times,
   all day and cancelled flags, location and organizer as record or free
   text, a link and Golb's blog fields (publish date, top post, tags,

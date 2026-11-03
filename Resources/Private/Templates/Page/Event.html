@@ -1,0 +1,115 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<f:layout name="Default"/>
+
+<f:comment>
+    Detail rendering of an event page, used by the TypoScript object
+    lib.golbEvents.event: header with flags, title, subtitle, the next date,
+    location and organizer and the "Add to calendar" and registration
+    links; the first media file, the abstract and the page content; the
+    upcoming dates of a recurring event, the location and organizer
+    details, categories and tags; and the schema.org structured data.
+
+    Variables (provided by the EventSchemaProcessor): event (Event),
+    nextOccurrence (Occurrence, the next date or the last one if the event
+    is over), upcomingOccurrences (Occurrence[]), eventSchemaJson (string);
+    content (rendered page content), data (page record), settings
+    (plugin.tx_golbevents.settings).
+</f:comment>
+<f:section name="Main">
+    <f:if condition="{event}">
+        <article class="golb-post golb-post--detail golbevents-event golbevents-event--detail{f:if(condition: event.cancelled, then: ' golbevents-event--cancelled')}{f:if(condition: event.topPost, then: ' golbevents-event--top')}">
+            <header class="golb-post__header golbevents-event__header">
+                <f:render partial="Event/Flags" arguments="{event: event, settings: settings}"/>
+                <h1 class="golb-post__title golbevents-event__title">{event.title}</h1>
+                <f:if condition="{event.subtitle}">
+                    <p class="golb-post__subtitle">{event.subtitle}</p>
+                </f:if>
+
+                <dl class="golbevents-event__facts">
+                    <dt><f:translate key="event.when" extensionName="GolbEvents"/></dt>
+                    <dd class="golbevents-event__date">
+                        <f:if condition="{nextOccurrence}">
+                            <f:then>
+                                <f:render partial="Event/Date" arguments="{occurrence: nextOccurrence, settings: settings}"/>
+                                <f:if condition="!{upcomingOccurrences}">
+                                    <span class="golbevents-event__ended"><f:translate key="event.ended" extensionName="GolbEvents"/></span>
+                                </f:if>
+                                <f:if condition="{event.recurring}">
+                                    <span class="golbevents-event__recurring"><f:translate key="event.recurring" extensionName="GolbEvents"/></span>
+                                </f:if>
+                            </f:then>
+                            <f:else>
+                                <f:translate key="event.noDates" extensionName="GolbEvents"/>
+                            </f:else>
+                        </f:if>
+                    </dd>
+                    <f:if condition="{settings.show.location} && {event.locationName}">
+                        <dt><f:translate key="event.where" extensionName="GolbEvents"/></dt>
+                        <dd class="golbevents-event__location">{event.locationName}<f:if condition="{event.location.city}">, {event.location.city}</f:if></dd>
+                    </f:if>
+                    <f:if condition="{settings.show.organizer} && {event.organizerName}">
+                        <dt><f:translate key="event.organizer" extensionName="GolbEvents"/></dt>
+                        <dd class="golbevents-event__organizer">{event.organizerName}</dd>
+                    </f:if>
+                </dl>
+
+                <f:if condition="({settings.show.ical} && {upcomingOccurrences}) || {event.link}">
+                    <p class="golbevents-event__actions">
+                        <f:if condition="{settings.show.ical} && {upcomingOccurrences}">
+                            <f:link.page pageUid="{event.uid}" pageType="{settings.icalTypeNum}" class="golbevents-event__action golbevents-event__action--ical"><f:translate key="event.addToCalendar" extensionName="GolbEvents"/></f:link.page>
+                        </f:if>
+                        <f:if condition="{event.link}">
+                            <f:link.typolink parameter="{event.link}" class="golbevents-event__action golbevents-event__action--register"><f:translate key="event.register" extensionName="GolbEvents"/></f:link.typolink>
+                        </f:if>
+                    </p>
+                </f:if>
+            </header>
+
+            <f:if condition="{settings.show.image} && {event.firstMedia}">
+                <figure class="golb-post__figure">
+                    <f:image image="{event.firstMedia}" width="{settings.imageWidth.detail}" class="golb-post__image"/>
+                    <f:if condition="{event.firstMedia.originalResource.description}">
+                        <figcaption class="golb-post__caption">{event.firstMedia.originalResource.description}</figcaption>
+                    </f:if>
+                </figure>
+            </f:if>
+
+            <f:if condition="{settings.show.abstract} && {event.abstract}">
+                <p class="golb-post__abstract golb-post__abstract--lead">{event.abstract}</p>
+            </f:if>
+
+            <div class="golb-post__content">
+                <f:format.raw>{content}</f:format.raw>
+            </div>
+
+            <f:if condition="{settings.show.dates} && {event.recurring} && {upcomingOccurrences}">
+                <section class="golbevents-dates">
+                    <h2 class="golbevents-dates__title"><f:translate key="event.dates" extensionName="GolbEvents"/></h2>
+                    <ul class="golbevents-dates__list">
+                        <f:for each="{upcomingOccurrences}" as="occurrence">
+                            <li class="golbevents-dates__item">
+                                <f:render partial="Event/Date" arguments="{occurrence: occurrence, settings: settings}"/>
+                            </li>
+                        </f:for>
+                    </ul>
+                </section>
+            </f:if>
+
+            <div class="golbevents-event__details">
+                <f:render partial="Event/Location" arguments="{event: event, settings: settings}"/>
+                <f:render partial="Event/Organizer" arguments="{event: event, settings: settings}"/>
+            </div>
+
+            <f:if condition="({settings.show.categories} && {event.categories}) || ({settings.show.tags} && {event.tags})">
+                <footer class="golb-post__footer">
+                    <f:render partial="Post/Terms" arguments="{post: event, settings: settings, data: data}"/>
+                </footer>
+            </f:if>
+
+            <f:if condition="{eventSchemaJson}">
+                <script type="application/ld+json">{eventSchemaJson -> f:format.raw()}</script>
+            </f:if>
+        </article>
+    </f:if>
+</f:section>
+</html>

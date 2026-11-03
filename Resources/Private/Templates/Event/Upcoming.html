@@ -4,16 +4,16 @@
 <f:section name="Main">
     <f:if condition="{occurrences}">
         <f:then>
-            <ul class="golbevents-list golbevents-list--upcoming">
+            <ul class="golb-list golbevents-list golbevents-list--upcoming">
                 <f:for each="{occurrences}" as="occurrence">
-                    <li class="golbevents-list__item">
-                        <f:render partial="Occurrence" arguments="{occurrence: occurrence, settings: settings}"/>
+                    <li class="golb-list__item">
+                        <f:render partial="Occurrence" arguments="{occurrence: occurrence, settings: settings, contentElementData: contentElementData}"/>
                     </li>
                 </f:for>
             </ul>
         </f:then>
         <f:else>
-            <p class="golbevents-list__empty"><f:translate key="list.empty"/></p>
+            <p class="golb-list__empty golbevents-list__empty"><f:translate key="list.empty"/></p>
         </f:else>
     </f:if>
 </f:section>

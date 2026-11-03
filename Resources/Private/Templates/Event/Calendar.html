@@ -4,11 +4,12 @@
 <f:section name="Main">
     <div class="golbevents-calendar">
         <nav class="golbevents-calendar__nav" aria-label="{f:translate(key: 'calendar.label')}">
-            <f:link.action action="calendar" arguments="{year: calendar.previousYear, month: calendar.previousMonth}" class="golbevents-calendar__previous" rel="prev"><f:translate key="calendar.previous"/></f:link.action>
+            <f:link.action action="calendar" arguments="{year: calendar.previousYear, month: calendar.previousMonth}" class="golbevents-calendar__previous" rel="prev"><span aria-hidden="true">&lsaquo;</span> <f:translate key="calendar.previous"/></f:link.action>
             <h3 class="golbevents-calendar__title">{calendar.firstDay -> f:format.date(format: '%B %Y')}</h3>
-            <f:link.action action="calendar" arguments="{year: calendar.nextYear, month: calendar.nextMonth}" class="golbevents-calendar__next" rel="next"><f:translate key="calendar.next"/></f:link.action>
+            <f:link.action action="calendar" arguments="{year: calendar.nextYear, month: calendar.nextMonth}" class="golbevents-calendar__next" rel="next"><f:translate key="calendar.next"/> <span aria-hidden="true">&rsaquo;</span></f:link.action>
         </nav>
         <table class="golbevents-calendar__grid">
+            <caption class="golb-visually-hidden"><f:translate key="calendar.caption" arguments="{0: '{calendar.firstDay -> f:format.date(format: \'%B %Y\')}'}"/></caption>
             <thead>
                 <tr>
                     <f:for each="{calendar.weekdays}" as="weekday">
@@ -21,7 +22,7 @@
                     <tr class="golbevents-calendar__week">
                         <f:for each="{week}" as="day">
                             <td class="golbevents-calendar__day{f:if(condition: '!{day.inMonth}', then: ' golbevents-calendar__day--other-month')}{f:if(condition: day.today, then: ' golbevents-calendar__day--today')}{f:if(condition: day.occurrences, then: ' golbevents-calendar__day--has-events')}">
-                                <span class="golbevents-calendar__number">{day.date -> f:format.date(format: 'j')}</span>
+                                <span class="golbevents-calendar__number" data-weekday="{day.date -> f:format.date(format: '%a')}"><f:if condition="{day.today}"><span class="golb-visually-hidden"><f:translate key="calendar.today"/>, </span></f:if><time datetime="{day.date -> f:format.date(format: 'Y-m-d')}">{day.date -> f:format.date(format: 'j')}</time></span>
                                 <f:if condition="{day.occurrences}">
                                     <ul class="golbevents-calendar__events">
                                         <f:for each="{day.occurrences}" as="occurrence">
@@ -29,7 +30,7 @@
                                                 <f:if condition="!{occurrence.allDay}">
                                                     <time class="golbevents-calendar__time" datetime="{occurrence.start -> f:format.date(format: 'c')}">{occurrence.start -> f:format.date(format: settings.timeFormat)}</time>
                                                 </f:if>
-                                                <f:link.page pageUid="{occurrence.event.uid}">{occurrence.event.title}</f:link.page>
+                                                <f:link.page pageUid="{occurrence.event.uid}" class="golbevents-calendar__link">{occurrence.event.title}</f:link.page>
                                             </li>
                                         </f:for>
                                     </ul>
@@ -41,7 +42,7 @@
             </tbody>
         </table>
         <f:if condition="!{calendar.events}">
-            <p class="golbevents-calendar__empty"><f:translate key="calendar.empty"/></p>
+            <p class="golb-list__empty golbevents-calendar__empty"><f:translate key="calendar.empty"/></p>
         </f:if>
     </div>
 </f:section>

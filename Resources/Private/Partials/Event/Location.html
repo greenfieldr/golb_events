@@ -1,0 +1,40 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<f:comment>
+    Renders the location of an event in the detail rendering: the name and,
+    for a location record, the address, a map link (OpenStreetMap, if
+    coordinates are set), the website and the description.
+
+    Variables: event (Event), settings (plugin settings).
+</f:comment>
+<f:if condition="{settings.show.location} && {event.locationName}">
+    <section class="golbevents-location">
+        <h2 class="golbevents-location__title"><f:translate key="event.location" extensionName="GolbEvents"/></h2>
+        <f:if condition="{event.location}">
+            <f:then>
+                <address class="golbevents-location__address">
+                    <strong class="golbevents-location__name">{event.location.name}</strong>
+                    <f:if condition="{event.location.street}"><br>{event.location.street}</f:if>
+                    <f:if condition="{event.location.zip} || {event.location.city}"><br>{event.location.zip} {event.location.city}</f:if>
+                    <f:if condition="{event.location.country}"><br>{event.location.country}</f:if>
+                </address>
+                <f:if condition="{event.location.coordinates} || {event.location.link}">
+                    <p class="golbevents-location__links">
+                        <f:if condition="{event.location.coordinates}">
+                            <a class="golbevents-location__map" href="https://www.openstreetmap.org/?mlat={event.location.latitude}&amp;mlon={event.location.longitude}#map=16/{event.location.latitude}/{event.location.longitude}" rel="noopener" target="_blank"><f:translate key="event.map" extensionName="GolbEvents"/></a>
+                        </f:if>
+                        <f:if condition="{event.location.link}">
+                            <f:link.typolink parameter="{event.location.link}" class="golbevents-location__link"><f:translate key="event.website" extensionName="GolbEvents"/></f:link.typolink>
+                        </f:if>
+                    </p>
+                </f:if>
+                <f:if condition="{event.location.description}">
+                    <p class="golbevents-location__description">{event.location.description -> f:format.nl2br()}</p>
+                </f:if>
+            </f:then>
+            <f:else>
+                <p class="golbevents-location__address">{event.locationText}</p>
+            </f:else>
+        </f:if>
+    </section>
+</f:if>
+</html>

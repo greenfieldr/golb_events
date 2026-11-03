@@ -1,0 +1,25 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<f:comment>
+    Renders the date and time of an occurrence as <time> elements: the day
+    (or the range of days) for all day occurrences, otherwise start and end
+    with their times. Times are shown in the server time zone.
+
+    Variables: occurrence (Occurrence), settings (plugin settings with
+    dateFormat and timeFormat).
+</f:comment>
+<f:if condition="{occurrence.allDay}">
+    <f:then>
+        <time datetime="{occurrence.start -> f:format.date(format: 'Y-m-d')}">{occurrence.start -> f:format.date(format: settings.dateFormat)}</time>
+        <f:if condition="{occurrence.multiDay}">
+            &ndash; <time datetime="{occurrence.end -> f:format.date(format: 'Y-m-d')}">{occurrence.end -> f:format.date(format: settings.dateFormat)}</time>
+        </f:if>
+        <span class="golbevents-event__all-day"><f:translate key="event.allDay" extensionName="GolbEvents"/></span>
+    </f:then>
+    <f:else>
+        <time datetime="{occurrence.start -> f:format.date(format: 'c')}">{occurrence.start -> f:format.date(format: settings.dateFormat)} {occurrence.start -> f:format.date(format: settings.timeFormat)}</time>
+        <f:if condition="{occurrence.endTime}">
+            &ndash; <time datetime="{occurrence.end -> f:format.date(format: 'c')}"><f:if condition="{occurrence.multiDay}">{occurrence.end -> f:format.date(format: settings.dateFormat)} </f:if>{occurrence.end -> f:format.date(format: settings.timeFormat)}</time>
+        </f:if>
+    </f:else>
+</f:if>
+</html>

@@ -24,6 +24,54 @@
             <trans-unit id="event.tags">
                 <source>Tags</source>
             </trans-unit>
+            <trans-unit id="list.filtered">
+                <source>Filtered list.</source>
+            </trans-unit>
+            <trans-unit id="list.showAll">
+                <source>Show all events</source>
+            </trans-unit>
+            <trans-unit id="event.topEvent">
+                <source>Top event</source>
+            </trans-unit>
+            <trans-unit id="event.readMore">
+                <source>Event details</source>
+            </trans-unit>
+            <trans-unit id="event.when">
+                <source>When</source>
+            </trans-unit>
+            <trans-unit id="event.where">
+                <source>Where</source>
+            </trans-unit>
+            <trans-unit id="event.ended">
+                <source>This event has ended.</source>
+            </trans-unit>
+            <trans-unit id="event.noDates">
+                <source>No dates have been scheduled yet.</source>
+            </trans-unit>
+            <trans-unit id="event.addToCalendar">
+                <source>Add to calendar</source>
+            </trans-unit>
+            <trans-unit id="event.register">
+                <source>Registration</source>
+            </trans-unit>
+            <trans-unit id="event.dates">
+                <source>Upcoming dates</source>
+            </trans-unit>
+            <trans-unit id="event.recurring">
+                <source>Recurring event</source>
+            </trans-unit>
+            <trans-unit id="event.map">
+                <source>Show on map</source>
+            </trans-unit>
+            <trans-unit id="event.website">
+                <source>Website</source>
+            </trans-unit>
+            <trans-unit id="event.email">
+                <source>Email</source>
+            </trans-unit>
+            <trans-unit id="event.phone">
+                <source>Phone</source>
+            </trans-unit>
             <trans-unit id="calendar.label">
                 <source>Calendar</source>
             </trans-unit>
@@ -35,6 +83,12 @@
             </trans-unit>
             <trans-unit id="calendar.empty">
                 <source>No events in this month.</source>
+            </trans-unit>
+            <trans-unit id="calendar.caption">
+                <source>Events in %s</source>
+            </trans-unit>
+            <trans-unit id="calendar.today">
+                <source>Today</source>
             </trans-unit>
             <trans-unit id="pagination.label">
                 <source>Pagination</source>

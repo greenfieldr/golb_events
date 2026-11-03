@@ -1,8 +1,8 @@
 plugin.tx_golbevents {
     view {
-        # Golb's layout and pagination partial are reused (index 0), the
-        # event templates come from this extension (index 5), site overrides
-        # go to the constants (index 10).
+        # Golb's layout, pagination and term partials are reused (index 0),
+        # the event templates come from this extension (index 5), site
+        # overrides go to the constants (index 10).
         templateRootPaths {
             0 = EXT:golb/Resources/Private/Templates/
             5 = EXT:golb_events/Resources/Private/Templates/
@@ -23,14 +23,58 @@ plugin.tx_golbevents {
     }
 
     settings {
+        # Golb's layout adds the stylesheets listed in "css" to the page if
+        # includeCss is enabled: the Golb base styles and the event styles.
+        # Remove an entry (settings.css.golbEvents >) or add your own file.
+        includeCss = {$plugin.tx_golbevents.settings.includeCss}
+        css {
+            golb = EXT:golb/Resources/Public/Css/golb.css
+            golbEvents = EXT:golb_events/Resources/Public/Css/golb_events.css
+        }
+
         # Date and time formats used by the default templates (see f:format.date)
-        dateFormat = %d.%m.%Y
-        timeFormat = %H:%M
+        dateFormat = {$plugin.tx_golbevents.settings.dateFormat}
+        timeFormat = {$plugin.tx_golbevents.settings.timeFormat}
+
+        # Elements of the default templates, 0 leaves them out
+        show {
+            image = {$plugin.tx_golbevents.settings.show.image}
+            dateBadge = {$plugin.tx_golbevents.settings.show.dateBadge}
+            abstract = {$plugin.tx_golbevents.settings.show.abstract}
+            location = {$plugin.tx_golbevents.settings.show.location}
+            organizer = {$plugin.tx_golbevents.settings.show.organizer}
+            categories = {$plugin.tx_golbevents.settings.show.categories}
+            tags = {$plugin.tx_golbevents.settings.show.tags}
+            flags = {$plugin.tx_golbevents.settings.show.flags}
+            ical = {$plugin.tx_golbevents.settings.show.ical}
+            dates = {$plugin.tx_golbevents.settings.show.dates}
+        }
+
+        # Image sizes in pixels (f:image width)
+        imageWidth {
+            teaser = {$plugin.tx_golbevents.settings.imageWidth.teaser}
+            detail = {$plugin.tx_golbevents.settings.imageWidth.detail}
+        }
+
+        # Links of categories and tags: they point to the Event list plugin on
+        # pageUid (0 = current page) and filter it with the demand argument
+        # of the plugin namespace, e.g. tx_golbevents_listview[demand][tag]=3.
+        filterLinks {
+            enabled = {$plugin.tx_golbevents.settings.filterLinks.enabled}
+            pageUid = {$plugin.tx_golbevents.settings.filterLinks.pageUid}
+            namespace = tx_golbevents_listview
+        }
 
         calendar {
             # First day of the week in the calendar: 1 = Monday ... 7 = Sunday
-            firstDayOfWeek = 1
+            firstDayOfWeek = {$plugin.tx_golbevents.settings.calendar.firstDayOfWeek}
         }
+
+        # Page type of the iCal download links
+        icalTypeNum = {$plugin.tx_golbevents.settings.icalTypeNum}
+
+        # Number of upcoming dates listed in the detail rendering
+        upcomingLimit = {$plugin.tx_golbevents.settings.upcomingLimit}
     }
 }
 
@@ -60,3 +104,46 @@ golbEventsIcal {
 plugin.tx_golbevents_listview < plugin.tx_golbevents
 plugin.tx_golbevents_upcomingview < plugin.tx_golbevents
 plugin.tx_golbevents_calendarview < plugin.tx_golbevents
+
+# Detail rendering of an event page: the complete article with header
+# (flags, title, subtitle, next date, location and organizer, "Add to
+# calendar" and registration links), image, abstract, the page content,
+# the upcoming dates of a recurring event, the location and organizer
+# details, categories and tags, and the schema.org structured data. Use
+# it in the page template of the site in place of the content:
+#
+#   <f:cObject typoscriptObjectPath="lib.golbEvents.event" data="{data}"/>
+#
+# or with TypoScript for event pages only:
+#
+#   [page["doktype"] == 42]
+#   page.10.variables.content =< lib.golbEvents.event
+#   [END]
+lib.golbEvents.event = FLUIDTEMPLATE
+lib.golbEvents.event {
+    templateName = Event
+    templateRootPaths {
+        0 = EXT:golb_events/Resources/Private/Templates/Page/
+        10 = {$plugin.tx_golbevents.view.templateRootPath}Page/
+    }
+    partialRootPaths < plugin.tx_golbevents.view.partialRootPaths
+    layoutRootPaths < plugin.tx_golbevents.view.layoutRootPaths
+
+    settings < plugin.tx_golbevents.settings
+
+    dataProcessing {
+        10 = Greenfieldr\GolbEvents\DataProcessing\EventSchemaProcessor
+        10 {
+            as = event
+            schemaAs = eventSchema
+            occurrenceAs = nextOccurrence
+            upcomingAs = upcomingOccurrences
+            upcomingLimit = {$plugin.tx_golbevents.settings.upcomingLimit}
+        }
+    }
+
+    variables {
+        # The content elements of the event (fluid_styled_content)
+        content =< styles.content.get
+    }
+}

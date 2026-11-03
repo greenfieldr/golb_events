@@ -1,0 +1,448 @@
+/*
+ * Golb Events - default stylesheet
+ *
+ * Builds on the Golb stylesheet (golb.css: custom properties, lists,
+ * flags, terms, pagination, detail layout) and adds the event specific
+ * blocks: golbevents-event, golbevents-badge, golbevents-dates,
+ * golbevents-location, golbevents-organizer and golbevents-calendar.
+ * Plain CSS, no framework, no brand colours. Adjust the custom properties
+ * on .golb, add your own stylesheet to plugin.tx_golbevents.settings.css
+ * or disable the files with the constant
+ * plugin.tx_golbevents.settings.includeCss.
+ */
+
+/* Event teaser ------------------------------------------------------------ */
+
+.golbevents-event--teaser {
+    display: grid;
+    gap: var(--golb-space);
+    align-items: start;
+}
+
+/* Date badge beside the text */
+.golbevents-event--teaser.golbevents-event--with-badge {
+    grid-template-columns: auto minmax(0, 1fr);
+}
+
+.golbevents-event--teaser.golbevents-event--with-badge .golbevents-event__image {
+    grid-column: 2;
+}
+
+@media (min-width: 40em) {
+    .golbevents-list--list .golbevents-event--teaser.golbevents-event--with-badge:has(.golbevents-event__image) {
+        grid-template-columns: auto minmax(0, 12rem) minmax(0, 1fr);
+    }
+
+    .golbevents-list--list .golbevents-event--teaser.golbevents-event--with-badge:has(.golbevents-event__image) .golbevents-event__image {
+        grid-column: auto;
+    }
+
+    .golbevents-list--list .golbevents-event--teaser:not(.golbevents-event--with-badge):has(.golbevents-event__image) {
+        grid-template-columns: minmax(0, 14rem) minmax(0, 1fr);
+    }
+}
+
+.golbevents-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 3.75rem;
+    padding: 0.5rem 0.375rem;
+    border: 1px solid var(--golb-border);
+    border-radius: var(--golb-radius);
+    background: var(--golb-surface);
+    line-height: 1.1;
+    text-align: center;
+}
+
+.golbevents-badge__day {
+    font-size: 1.5em;
+    font-weight: 700;
+}
+
+.golbevents-badge__month {
+    font-size: 0.75em;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.golbevents-badge__until {
+    margin-top: 0.25rem;
+    font-size: 0.7em;
+    opacity: var(--golb-muted);
+}
+
+.golbevents-event--cancelled .golbevents-badge {
+    opacity: var(--golb-muted);
+}
+
+.golbevents-event__image {
+    display: block;
+    margin: 0;
+    overflow: hidden;
+    border-radius: var(--golb-radius);
+    background: var(--golb-surface-strong);
+}
+
+.golbevents-event__image img {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+}
+
+.golbevents-event__body > :first-child {
+    margin-top: 0;
+}
+
+.golbevents-event__body > :last-child {
+    margin-bottom: 0;
+}
+
+.golbevents-event__title {
+    margin: 0 0 0.375rem;
+    font-size: 1.25em;
+    line-height: 1.3;
+}
+
+.golbevents-event__title a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.golbevents-event__title a:hover,
+.golbevents-event__title a:focus-visible {
+    text-decoration: underline;
+}
+
+.golbevents-event--cancelled .golbevents-event__title {
+    text-decoration: line-through;
+    opacity: var(--golb-muted);
+}
+
+.golbevents-event__date,
+.golbevents-event__location,
+.golbevents-event__organizer {
+    margin: 0 0 0.375rem;
+    font-size: var(--golb-small);
+}
+
+.golbevents-event__date {
+    font-weight: 600;
+}
+
+.golbevents-event__all-day,
+.golbevents-event__recurring,
+.golbevents-event__ended {
+    margin-left: 0.5rem;
+    font-weight: 400;
+    opacity: var(--golb-muted);
+}
+
+.golbevents-event__label {
+    opacity: var(--golb-muted);
+}
+
+.golbevents-event__abstract {
+    margin: 0.5rem 0 0.75rem;
+}
+
+.golbevents-event__flags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    margin: 0 0 0.5rem;
+}
+
+.golb-flag--cancelled {
+    border: 1px solid currentColor;
+    background: transparent;
+}
+
+.golbevents-event__more {
+    margin: 0.75rem 0 0;
+    font-size: var(--golb-small);
+}
+
+.golbevents-event__more-link {
+    font-weight: 600;
+}
+
+/* Detail rendering (lib.golbEvents.event) -------------------------------- */
+
+.golbevents-event--detail .golbevents-event__title {
+    font-size: 2em;
+    line-height: 1.2;
+}
+
+.golbevents-event--detail.golbevents-event--cancelled .golbevents-event__title {
+    text-decoration: none;
+    opacity: 1;
+}
+
+.golbevents-event__facts {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: 0.375rem 1rem;
+    margin: var(--golb-space) 0;
+    padding: var(--golb-space);
+    border: 1px solid var(--golb-border);
+    border-radius: var(--golb-radius);
+    background: var(--golb-surface);
+}
+
+.golbevents-event__facts dt {
+    font-weight: 600;
+    opacity: var(--golb-muted);
+}
+
+.golbevents-event__facts dd {
+    margin: 0;
+    font-size: 1em;
+}
+
+.golbevents-event__facts .golbevents-event__date {
+    font-weight: 400;
+}
+
+.golbevents-event__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0 0 var(--golb-space);
+}
+
+.golbevents-event__action {
+    display: inline-block;
+    padding: 0.5em 1em;
+    border: 1px solid currentColor;
+    border-radius: var(--golb-radius);
+    color: inherit;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.golbevents-event__action:hover,
+.golbevents-event__action:focus-visible {
+    background: var(--golb-surface-strong);
+}
+
+.golbevents-dates,
+.golbevents-location,
+.golbevents-organizer {
+    margin: 0 0 var(--golb-space-l);
+}
+
+.golbevents-dates__title,
+.golbevents-location__title,
+.golbevents-organizer__title {
+    margin: 0 0 0.5rem;
+    font-size: 1.125em;
+}
+
+.golbevents-dates__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.golbevents-dates__item {
+    padding: 0.5rem 0;
+    border-top: 1px solid var(--golb-border);
+}
+
+.golbevents-dates__item:last-child {
+    border-bottom: 1px solid var(--golb-border);
+}
+
+.golbevents-event__details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+    gap: var(--golb-space);
+}
+
+.golbevents-location__address {
+    margin: 0 0 0.5rem;
+    font-style: normal;
+}
+
+.golbevents-location__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 0 0 0.5rem;
+    font-size: var(--golb-small);
+}
+
+.golbevents-organizer__name {
+    margin: 0 0 0.5rem;
+    font-weight: 600;
+}
+
+.golbevents-organizer__contact {
+    margin: 0 0 0.5rem;
+    padding: 0;
+    font-size: var(--golb-small);
+    list-style: none;
+}
+
+.golbevents-location__description,
+.golbevents-organizer__description {
+    margin: 0;
+    font-size: var(--golb-small);
+    opacity: var(--golb-muted);
+}
+
+/* Calendar ----------------------------------------------------------------- */
+
+.golbevents-calendar {
+    margin: 0 0 var(--golb-space-l);
+}
+
+.golbevents-calendar__nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--golb-space);
+    margin: 0 0 var(--golb-space);
+}
+
+.golbevents-calendar__title {
+    margin: 0;
+    font-size: 1.25em;
+    text-align: center;
+}
+
+.golbevents-calendar__previous,
+.golbevents-calendar__next {
+    padding: 0.375em 0.75em;
+    border: 1px solid var(--golb-border);
+    border-radius: var(--golb-radius);
+    color: inherit;
+    font-size: var(--golb-small);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.golbevents-calendar__previous:hover,
+.golbevents-calendar__next:hover,
+.golbevents-calendar__previous:focus-visible,
+.golbevents-calendar__next:focus-visible {
+    background: var(--golb-surface-strong);
+}
+
+.golbevents-calendar__grid {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.golbevents-calendar__weekday {
+    padding: 0.5rem 0.25rem;
+    border-bottom: 1px solid var(--golb-border);
+    font-size: var(--golb-small);
+    font-weight: 600;
+    text-align: center;
+}
+
+.golbevents-calendar__day {
+    height: 5.5rem;
+    padding: 0.25rem;
+    border: 1px solid var(--golb-border);
+    vertical-align: top;
+}
+
+.golbevents-calendar__day--other-month {
+    background: var(--golb-surface);
+    opacity: var(--golb-muted);
+}
+
+.golbevents-calendar__number {
+    display: inline-block;
+    min-width: 1.75em;
+    padding: 0.125em 0.25em;
+    border-radius: 999px;
+    font-size: var(--golb-small);
+    text-align: center;
+}
+
+.golbevents-calendar__day--today .golbevents-calendar__number {
+    border: 2px solid currentColor;
+    font-weight: 700;
+}
+
+.golbevents-calendar__events {
+    margin: 0.25rem 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.golbevents-calendar__event {
+    margin: 0 0 0.125rem;
+    padding: 0.125rem 0.375rem;
+    border-radius: var(--golb-radius);
+    background: var(--golb-surface-strong);
+    font-size: 0.75em;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.golbevents-calendar__event--cancelled {
+    text-decoration: line-through;
+    opacity: var(--golb-muted);
+}
+
+.golbevents-calendar__time {
+    margin-right: 0.25em;
+    font-weight: 600;
+}
+
+.golbevents-calendar__link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.golbevents-calendar__link:hover,
+.golbevents-calendar__link:focus-visible {
+    text-decoration: underline;
+}
+
+/* Small screens: the grid becomes a list of the days with events */
+@media (max-width: 40em) {
+    .golbevents-calendar__grid,
+    .golbevents-calendar__grid tbody,
+    .golbevents-calendar__grid tr,
+    .golbevents-calendar__grid td {
+        display: block;
+    }
+
+    .golbevents-calendar__grid thead {
+        display: none;
+    }
+
+    .golbevents-calendar__day {
+        height: auto;
+        border-width: 0 0 1px;
+    }
+
+    .golbevents-calendar__day:not(.golbevents-calendar__day--has-events):not(.golbevents-calendar__day--today) {
+        display: none;
+    }
+
+    .golbevents-calendar__number::after {
+        content: ", " attr(data-weekday);
+    }
+
+    .golbevents-calendar__nav {
+        flex-wrap: wrap;
+    }
+
+    .golbevents-calendar__title {
+        order: -1;
+        width: 100%;
+    }
+
+    .golbevents-calendar__event {
+        font-size: var(--golb-small);
+    }
+}

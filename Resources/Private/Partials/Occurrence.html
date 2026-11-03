@@ -1,54 +1,50 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
 <f:comment>
-    Renders one event date (occurrence) with its event.
+    Renders one event date (occurrence) as teaser in a list: date badge,
+    image, flags, title, date and time, location, organizer, abstract,
+    categories and tags.
 
-    Variables: occurrence (Occurrence), settings (plugin settings with
-    dateFormat and timeFormat). Times are shown in the server time zone.
+    Variables: occurrence (Occurrence), settings (plugin settings),
+    contentElementData (plugin record, optional, target of the filter
+    links). Times are shown in the server time zone.
 </f:comment>
-<article class="golbevents-event{f:if(condition: occurrence.event.cancelled, then: ' golbevents-event--cancelled')}">
-    <h3 class="golbevents-event__title">
-        <f:link.page pageUid="{occurrence.event.uid}">{occurrence.event.title}</f:link.page>
-    </h3>
-    <p class="golbevents-event__date">
-        <f:if condition="{occurrence.allDay}">
-            <f:then>
-                <time datetime="{occurrence.start -> f:format.date(format: 'Y-m-d')}">{occurrence.start -> f:format.date(format: settings.dateFormat)}</time>
-                <f:if condition="{occurrence.multiDay}">
-                    &ndash; <time datetime="{occurrence.end -> f:format.date(format: 'Y-m-d')}">{occurrence.end -> f:format.date(format: settings.dateFormat)}</time>
-                </f:if>
-                <span class="golbevents-event__all-day"><f:translate key="event.allDay"/></span>
-            </f:then>
-            <f:else>
-                <time datetime="{occurrence.start -> f:format.date(format: 'c')}">{occurrence.start -> f:format.date(format: settings.dateFormat)} {occurrence.start -> f:format.date(format: settings.timeFormat)}</time>
-                <f:if condition="{occurrence.endTime}">
-                    &ndash; <time datetime="{occurrence.end -> f:format.date(format: 'c')}"><f:if condition="{occurrence.multiDay}">{occurrence.end -> f:format.date(format: settings.dateFormat)} </f:if>{occurrence.end -> f:format.date(format: settings.timeFormat)}</time>
-                </f:if>
-            </f:else>
+<f:variable name="event" value="{occurrence.event}"/>
+<article class="golbevents-event golbevents-event--teaser{f:if(condition: event.cancelled, then: ' golbevents-event--cancelled')}{f:if(condition: event.topPost, then: ' golbevents-event--top')}{f:if(condition: '{settings.show.dateBadge}', then: ' golbevents-event--with-badge')}">
+    <f:if condition="{settings.show.dateBadge}">
+        <div class="golbevents-badge" aria-hidden="true">
+            <span class="golbevents-badge__day">{occurrence.start -> f:format.date(format: 'j')}</span>
+            <span class="golbevents-badge__month">{occurrence.start -> f:format.date(format: '%b')}</span>
+            <f:if condition="{occurrence.multiDay}">
+                <span class="golbevents-badge__until">&ndash; {occurrence.end -> f:format.date(format: 'j')} {occurrence.end -> f:format.date(format: '%b')}</span>
+            </f:if>
+        </div>
+    </f:if>
+    <f:if condition="{settings.show.image} && {event.firstMedia}">
+        <f:link.page pageUid="{event.uid}" class="golbevents-event__image" tabindex="-1" aria-hidden="true">
+            <f:image image="{event.firstMedia}" width="{settings.imageWidth.teaser}" loading="lazy"/>
+        </f:link.page>
+    </f:if>
+    <div class="golbevents-event__body">
+        <f:render partial="Event/Flags" arguments="{event: event, settings: settings}"/>
+        <h3 class="golbevents-event__title">
+            <f:link.page pageUid="{event.uid}">{event.title}</f:link.page>
+        </h3>
+        <p class="golbevents-event__date">
+            <f:render partial="Event/Date" arguments="{occurrence: occurrence, settings: settings}"/>
+        </p>
+        <f:if condition="{settings.show.location} && {event.locationName}">
+            <p class="golbevents-event__location"><span class="golbevents-event__label"><f:translate key="event.location" extensionName="GolbEvents"/>:</span> {event.locationName}<f:if condition="{event.location.city}">, {event.location.city}</f:if></p>
         </f:if>
-    </p>
-    <f:if condition="{occurrence.event.cancelled}">
-        <p class="golbevents-event__cancelled"><f:translate key="event.cancelled"/></p>
-    </f:if>
-    <f:if condition="{occurrence.event.locationName}">
-        <p class="golbevents-event__location"><f:translate key="event.location"/>: {occurrence.event.locationName}</p>
-    </f:if>
-    <f:if condition="{occurrence.event.organizerName}">
-        <p class="golbevents-event__organizer"><f:translate key="event.organizer"/>: {occurrence.event.organizerName}</p>
-    </f:if>
-    <f:if condition="{occurrence.event.abstract}">
-        <p class="golbevents-event__abstract">{occurrence.event.abstract}</p>
-    </f:if>
-    <f:if condition="{occurrence.event.categories}">
-        <p class="golbevents-event__categories">
-            <f:translate key="event.categories"/>:
-            <f:for each="{occurrence.event.categories}" as="category" iteration="iterator">{category.title}{f:if(condition: '!{iterator.isLast}', then: ', ')}</f:for>
+        <f:if condition="{settings.show.organizer} && {event.organizerName}">
+            <p class="golbevents-event__organizer"><span class="golbevents-event__label"><f:translate key="event.organizer" extensionName="GolbEvents"/>:</span> {event.organizerName}</p>
+        </f:if>
+        <f:if condition="{settings.show.abstract} && {event.abstract}">
+            <p class="golbevents-event__abstract">{event.abstract}</p>
+        </f:if>
+        <f:render partial="Post/Terms" arguments="{post: event, settings: settings, contentElementData: contentElementData}"/>
+        <p class="golbevents-event__more">
+            <f:link.page pageUid="{event.uid}" class="golbevents-event__more-link"><f:translate key="event.readMore" extensionName="GolbEvents"/><span class="golb-visually-hidden">: {event.title}</span></f:link.page>
         </p>
-    </f:if>
-    <f:if condition="{occurrence.event.tags}">
-        <p class="golbevents-event__tags">
-            <f:translate key="event.tags"/>:
-            <f:for each="{occurrence.event.tags}" as="tag" iteration="iterator">{tag.title}{f:if(condition: '!{iterator.isLast}', then: ', ')}</f:for>
-        </p>
-    </f:if>
+    </div>
 </article>
 </html>
