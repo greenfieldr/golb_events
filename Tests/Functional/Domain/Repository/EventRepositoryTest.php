@@ -190,12 +190,12 @@ final class EventRepositoryTest extends FunctionalTestCase
             static fn(Occurrence $occurrence): int => (int)$occurrence->getStart()?->getTimestamp(),
             $event->getOccurrences()->toArray()
         );
-        self::assertSame([1780336800, 1780509600], $starts);
+        self::assertSame([1780329600, 1780502400], $starts);
 
         $occurrence = $this->get(OccurrenceRepository::class)->findByUid(1);
         self::assertInstanceOf(Occurrence::class, $occurrence);
-        self::assertSame(1778974200, $occurrence->getStart()?->getTimestamp());
-        self::assertSame(1778979600, $occurrence->getEnd()?->getTimestamp());
+        self::assertSame(1777937400, $occurrence->getStart()?->getTimestamp());
+        self::assertSame(1777942800, $occurrence->getEnd()?->getTimestamp());
         self::assertFalse($occurrence->isAllDay());
         self::assertSame(3, $occurrence->getEvent()?->getUid());
         self::assertSame('Conference', $occurrence->getEvent()->getTitle());
