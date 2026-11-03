@@ -68,4 +68,23 @@ class Occurrence extends AbstractEntity
     {
         $this->allDay = $allDay;
     }
+
+    /**
+     * Whether the occurrence has an end later than its start.
+     */
+    public function hasEndTime(): bool
+    {
+        return $this->start instanceof \DateTimeImmutable
+            && $this->end instanceof \DateTimeImmutable
+            && $this->end > $this->start;
+    }
+
+    /**
+     * Whether start and end fall on different days (in the time zone of the
+     * mapped dates, i.e. the server time zone).
+     */
+    public function isMultiDay(): bool
+    {
+        return $this->hasEndTime() && $this->start?->format('Y-m-d') !== $this->end?->format('Y-m-d');
+    }
 }

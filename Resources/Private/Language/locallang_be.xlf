@@ -6,6 +6,108 @@
             <trans-unit id="doktype.event">
                 <source>Event</source>
             </trans-unit>
+            <trans-unit id="tt_content.plugin.listView.title">
+                <source>Event list</source>
+            </trans-unit>
+            <trans-unit id="tt_content.plugin.listView.description">
+                <source>Shows a paginated list of event dates based on the plugin settings.</source>
+            </trans-unit>
+            <trans-unit id="tt_content.plugin.upcomingView.title">
+                <source>Upcoming events</source>
+            </trans-unit>
+            <trans-unit id="tt_content.plugin.upcomingView.description">
+                <source>Shows a limited number of event dates based on the plugin settings.</source>
+            </trans-unit>
+            <trans-unit id="tt_content.plugin.calendarView.title">
+                <source>Event calendar</source>
+            </trans-unit>
+            <trans-unit id="tt_content.plugin.calendarView.description">
+                <source>Shows the event dates of a month as calendar.</source>
+            </trans-unit>
+            <trans-unit id="flexforms_tab.settings">
+                <source>Plugin settings</source>
+            </trans-unit>
+            <trans-unit id="flexforms_general.mode">
+                <source>Event dates</source>
+            </trans-unit>
+            <trans-unit id="flexforms_general.mode.upcoming">
+                <source>Upcoming (including running events)</source>
+            </trans-unit>
+            <trans-unit id="flexforms_general.mode.past">
+                <source>Past</source>
+            </trans-unit>
+            <trans-unit id="flexforms_general.mode.all">
+                <source>All</source>
+            </trans-unit>
+            <trans-unit id="flexforms_general.mode.range">
+                <source>In a date range</source>
+            </trans-unit>
+            <trans-unit id="flexforms_general.from">
+                <source>From</source>
+            </trans-unit>
+            <trans-unit id="flexforms_general.to">
+                <source>To</source>
+            </trans-unit>
+            <trans-unit id="flexforms_general.sorting">
+                <source>Sorting field</source>
+            </trans-unit>
+            <trans-unit id="flexforms_general.sorting.start">
+                <source>Date of the event</source>
+            </trans-unit>
+            <trans-unit id="flexforms_general.sorting.title">
+                <source>Title</source>
+            </trans-unit>
+            <trans-unit id="flexforms_general.sorting.date">
+                <source>Publish date (with fallback on creation date)</source>
+            </trans-unit>
+            <trans-unit id="flexforms_general.sorting.crdate">
+                <source>Creation date</source>
+            </trans-unit>
+            <trans-unit id="flexforms_general.sorting.tstamp">
+                <source>Last updated</source>
+            </trans-unit>
+            <trans-unit id="flexforms_general.sorting.author">
+                <source>Author</source>
+            </trans-unit>
+            <trans-unit id="flexforms_general.sortingDirection">
+                <source>Sorting direction</source>
+            </trans-unit>
+            <trans-unit id="flexforms_general.sortingDirection.auto">
+                <source>Automatic (chronological, past events most recent first)</source>
+            </trans-unit>
+            <trans-unit id="flexforms_general.sortingDirection.ascending">
+                <source>Ascending</source>
+            </trans-unit>
+            <trans-unit id="flexforms_general.sortingDirection.descending">
+                <source>Descending</source>
+            </trans-unit>
+            <trans-unit id="flexforms_general.limit">
+                <source>Limit</source>
+            </trans-unit>
+            <trans-unit id="flexforms_general.itemsPerPage">
+                <source>Items per page</source>
+            </trans-unit>
+            <trans-unit id="flexforms_general.offset">
+                <source>Offset</source>
+            </trans-unit>
+            <trans-unit id="flexforms_general.exclude">
+                <source>Excluded events</source>
+            </trans-unit>
+            <trans-unit id="flexforms_general.topPosts">
+                <source>Top events</source>
+            </trans-unit>
+            <trans-unit id="flexforms_general.topPosts.all">
+                <source>Show all</source>
+            </trans-unit>
+            <trans-unit id="flexforms_general.topPosts.topPostsOnly">
+                <source>Show top events only</source>
+            </trans-unit>
+            <trans-unit id="flexforms_general.topPosts.nonTopPostsOnly">
+                <source>Show non-top events only</source>
+            </trans-unit>
+            <trans-unit id="flexforms_general.allowDemandOverwrite">
+                <source>Allow demand overwrite (e.g. via URL parameters)</source>
+            </trans-unit>
         </body>
     </file>
 </xliff>

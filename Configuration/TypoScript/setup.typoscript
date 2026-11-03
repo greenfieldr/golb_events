@@ -1,0 +1,40 @@
+plugin.tx_golbevents {
+    view {
+        # Golb's layout and pagination partial are reused (index 0), the
+        # event templates come from this extension (index 5), site overrides
+        # go to the constants (index 10).
+        templateRootPaths {
+            0 = EXT:golb/Resources/Private/Templates/
+            5 = EXT:golb_events/Resources/Private/Templates/
+            10 = {$plugin.tx_golbevents.view.templateRootPath}
+        }
+
+        partialRootPaths {
+            0 = EXT:golb/Resources/Private/Partials/
+            5 = EXT:golb_events/Resources/Private/Partials/
+            10 = {$plugin.tx_golbevents.view.partialRootPath}
+        }
+
+        layoutRootPaths {
+            0 = EXT:golb/Resources/Private/Layouts/
+            5 = EXT:golb_events/Resources/Private/Layouts/
+            10 = {$plugin.tx_golbevents.view.layoutRootPath}
+        }
+    }
+
+    settings {
+        # Date and time formats used by the default templates (see f:format.date)
+        dateFormat = %d.%m.%Y
+        timeFormat = %H:%M
+
+        calendar {
+            # First day of the week in the calendar: 1 = Monday ... 7 = Sunday
+            firstDayOfWeek = 1
+        }
+    }
+}
+
+# All plugins inherit from plugin.tx_golbevents
+plugin.tx_golbevents_listview < plugin.tx_golbevents
+plugin.tx_golbevents_upcomingview < plugin.tx_golbevents
+plugin.tx_golbevents_calendarview < plugin.tx_golbevents

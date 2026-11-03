@@ -37,4 +37,16 @@ return [
         'provider' => SvgIconProvider::class,
         'source' => 'EXT:golb_events/Resources/Public/Icons/tx_golbevents_domain_model_occurrence.svg',
     ],
+    'ext-golbevents-plugin-list-view' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:golb_events/Resources/Public/Icons/plugin_list_view.svg',
+    ],
+    'ext-golbevents-plugin-upcoming-view' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:golb_events/Resources/Public/Icons/plugin_upcoming_view.svg',
+    ],
+    'ext-golbevents-plugin-calendar-view' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:golb_events/Resources/Public/Icons/plugin_calendar_view.svg',
+    ],
 ];

@@ -1,0 +1,10 @@
+plugin.tx_golbevents {
+    view {
+        # cat=plugin.tx_golbevents/file; type=string; label=Path to template files
+        templateRootPath = EXT:golb_events/Resources/Private/Templates/
+        # cat=plugin.tx_golbevents/file; type=string; label=Path to partial files
+        partialRootPath = EXT:golb_events/Resources/Private/Partials/
+        # cat=plugin.tx_golbevents/file; type=string; label=Path to layout files
+        layoutRootPath = EXT:golb_events/Resources/Private/Layouts/
+    }
+}

@@ -1,0 +1,48 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<f:layout name="Default"/>
+
+<f:section name="Main">
+    <div class="golbevents-calendar">
+        <nav class="golbevents-calendar__nav" aria-label="{f:translate(key: 'calendar.label')}">
+            <f:link.action action="calendar" arguments="{year: calendar.previousYear, month: calendar.previousMonth}" class="golbevents-calendar__previous" rel="prev"><f:translate key="calendar.previous"/></f:link.action>
+            <h3 class="golbevents-calendar__title">{calendar.firstDay -> f:format.date(format: '%B %Y')}</h3>
+            <f:link.action action="calendar" arguments="{year: calendar.nextYear, month: calendar.nextMonth}" class="golbevents-calendar__next" rel="next"><f:translate key="calendar.next"/></f:link.action>
+        </nav>
+        <table class="golbevents-calendar__grid">
+            <thead>
+                <tr>
+                    <f:for each="{calendar.weekdays}" as="weekday">
+                        <th scope="col" class="golbevents-calendar__weekday" abbr="{weekday.date -> f:format.date(format: '%A')}">{weekday.date -> f:format.date(format: '%a')}</th>
+                    </f:for>
+                </tr>
+            </thead>
+            <tbody>
+                <f:for each="{calendar.weeks}" as="week">
+                    <tr class="golbevents-calendar__week">
+                        <f:for each="{week}" as="day">
+                            <td class="golbevents-calendar__day{f:if(condition: '!{day.inMonth}', then: ' golbevents-calendar__day--other-month')}{f:if(condition: day.today, then: ' golbevents-calendar__day--today')}{f:if(condition: day.occurrences, then: ' golbevents-calendar__day--has-events')}">
+                                <span class="golbevents-calendar__number">{day.date -> f:format.date(format: 'j')}</span>
+                                <f:if condition="{day.occurrences}">
+                                    <ul class="golbevents-calendar__events">
+                                        <f:for each="{day.occurrences}" as="occurrence">
+                                            <li class="golbevents-calendar__event{f:if(condition: occurrence.event.cancelled, then: ' golbevents-calendar__event--cancelled')}">
+                                                <f:if condition="!{occurrence.allDay}">
+                                                    <time class="golbevents-calendar__time" datetime="{occurrence.start -> f:format.date(format: 'c')}">{occurrence.start -> f:format.date(format: settings.timeFormat)}</time>
+                                                </f:if>
+                                                <f:link.page pageUid="{occurrence.event.uid}">{occurrence.event.title}</f:link.page>
+                                            </li>
+                                        </f:for>
+                                    </ul>
+                                </f:if>
+                            </td>
+                        </f:for>
+                    </tr>
+                </f:for>
+            </tbody>
+        </table>
+        <f:if condition="!{calendar.events}">
+            <p class="golbevents-calendar__empty"><f:translate key="calendar.empty"/></p>
+        </f:if>
+    </div>
+</f:section>
+</html>

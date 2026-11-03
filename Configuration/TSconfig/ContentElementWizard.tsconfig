@@ -1,0 +1,31 @@
+mod.wizards.newContentElement.wizardItems.ext-golb {
+    header = LLL:EXT:golb/Resources/Private/Language/locallang_be.xlf:wizard_group
+    after = common
+    elements {
+        golbevents_listview {
+            iconIdentifier = ext-golbevents-plugin-list-view
+            title = LLL:EXT:golb_events/Resources/Private/Language/locallang_be.xlf:tt_content.plugin.listView.title
+            description = LLL:EXT:golb_events/Resources/Private/Language/locallang_be.xlf:tt_content.plugin.listView.description
+            tt_content_defValues {
+                CType = golbevents_listview
+            }
+        }
+        golbevents_upcomingview {
+            iconIdentifier = ext-golbevents-plugin-upcoming-view
+            title = LLL:EXT:golb_events/Resources/Private/Language/locallang_be.xlf:tt_content.plugin.upcomingView.title
+            description = LLL:EXT:golb_events/Resources/Private/Language/locallang_be.xlf:tt_content.plugin.upcomingView.description
+            tt_content_defValues {
+                CType = golbevents_upcomingview
+            }
+        }
+        golbevents_calendarview {
+            iconIdentifier = ext-golbevents-plugin-calendar-view
+            title = LLL:EXT:golb_events/Resources/Private/Language/locallang_be.xlf:tt_content.plugin.calendarView.title
+            description = LLL:EXT:golb_events/Resources/Private/Language/locallang_be.xlf:tt_content.plugin.calendarView.description
+            tt_content_defValues {
+                CType = golbevents_calendarview
+            }
+        }
+    }
+    show = *
+}

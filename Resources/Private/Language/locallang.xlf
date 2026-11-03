@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<xliff version="1.0">
+    <file source-language="en" datatype="plaintext" original="messages" date="2026-11-03T12:00:00Z" product-name="golb_events">
+        <header/>
+        <body>
+            <trans-unit id="list.empty">
+                <source>No events found.</source>
+            </trans-unit>
+            <trans-unit id="event.cancelled">
+                <source>Cancelled</source>
+            </trans-unit>
+            <trans-unit id="event.allDay">
+                <source>All day</source>
+            </trans-unit>
+            <trans-unit id="event.location">
+                <source>Location</source>
+            </trans-unit>
+            <trans-unit id="event.organizer">
+                <source>Organizer</source>
+            </trans-unit>
+            <trans-unit id="event.categories">
+                <source>Categories</source>
+            </trans-unit>
+            <trans-unit id="event.tags">
+                <source>Tags</source>
+            </trans-unit>
+            <trans-unit id="calendar.label">
+                <source>Calendar</source>
+            </trans-unit>
+            <trans-unit id="calendar.previous">
+                <source>Previous month</source>
+            </trans-unit>
+            <trans-unit id="calendar.next">
+                <source>Next month</source>
+            </trans-unit>
+            <trans-unit id="calendar.empty">
+                <source>No events in this month.</source>
+            </trans-unit>
+            <trans-unit id="pagination.label">
+                <source>Pagination</source>
+            </trans-unit>
+            <trans-unit id="pagination.first">
+                <source>First</source>
+            </trans-unit>
+            <trans-unit id="pagination.previous">
+                <source>Previous</source>
+            </trans-unit>
+            <trans-unit id="pagination.next">
+                <source>Next</source>
+            </trans-unit>
+            <trans-unit id="pagination.last">
+                <source>Last</source>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

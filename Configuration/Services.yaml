@@ -14,3 +14,10 @@ services:
 
   Greenfieldr\GolbEvents\Recurrence\OccurrenceSynchronizer:
     public: true
+
+  Greenfieldr\GolbEvents\Property\TypeConverter\DateTimeImmutableConverter:
+    tags:
+      - name: extbase.type_converter
+        priority: 10
+        target: DateTimeImmutable
+        sources: string,integer,array

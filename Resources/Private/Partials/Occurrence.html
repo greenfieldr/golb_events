@@ -1,0 +1,54 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<f:comment>
+    Renders one event date (occurrence) with its event.
+
+    Variables: occurrence (Occurrence), settings (plugin settings with
+    dateFormat and timeFormat). Times are shown in the server time zone.
+</f:comment>
+<article class="golbevents-event{f:if(condition: occurrence.event.cancelled, then: ' golbevents-event--cancelled')}">
+    <h3 class="golbevents-event__title">
+        <f:link.page pageUid="{occurrence.event.uid}">{occurrence.event.title}</f:link.page>
+    </h3>
+    <p class="golbevents-event__date">
+        <f:if condition="{occurrence.allDay}">
+            <f:then>
+                <time datetime="{occurrence.start -> f:format.date(format: 'Y-m-d')}">{occurrence.start -> f:format.date(format: settings.dateFormat)}</time>
+                <f:if condition="{occurrence.multiDay}">
+                    &ndash; <time datetime="{occurrence.end -> f:format.date(format: 'Y-m-d')}">{occurrence.end -> f:format.date(format: settings.dateFormat)}</time>
+                </f:if>
+                <span class="golbevents-event__all-day"><f:translate key="event.allDay"/></span>
+            </f:then>
+            <f:else>
+                <time datetime="{occurrence.start -> f:format.date(format: 'c')}">{occurrence.start -> f:format.date(format: settings.dateFormat)} {occurrence.start -> f:format.date(format: settings.timeFormat)}</time>
+                <f:if condition="{occurrence.endTime}">
+                    &ndash; <time datetime="{occurrence.end -> f:format.date(format: 'c')}"><f:if condition="{occurrence.multiDay}">{occurrence.end -> f:format.date(format: settings.dateFormat)} </f:if>{occurrence.end -> f:format.date(format: settings.timeFormat)}</time>
+                </f:if>
+            </f:else>
+        </f:if>
+    </p>
+    <f:if condition="{occurrence.event.cancelled}">
+        <p class="golbevents-event__cancelled"><f:translate key="event.cancelled"/></p>
+    </f:if>
+    <f:if condition="{occurrence.event.locationName}">
+        <p class="golbevents-event__location"><f:translate key="event.location"/>: {occurrence.event.locationName}</p>
+    </f:if>
+    <f:if condition="{occurrence.event.organizerName}">
+        <p class="golbevents-event__organizer"><f:translate key="event.organizer"/>: {occurrence.event.organizerName}</p>
+    </f:if>
+    <f:if condition="{occurrence.event.abstract}">
+        <p class="golbevents-event__abstract">{occurrence.event.abstract}</p>
+    </f:if>
+    <f:if condition="{occurrence.event.categories}">
+        <p class="golbevents-event__categories">
+            <f:translate key="event.categories"/>:
+            <f:for each="{occurrence.event.categories}" as="category" iteration="iterator">{category.title}{f:if(condition: '!{iterator.isLast}', then: ', ')}</f:for>
+        </p>
+    </f:if>
+    <f:if condition="{occurrence.event.tags}">
+        <p class="golbevents-event__tags">
+            <f:translate key="event.tags"/>:
+            <f:for each="{occurrence.event.tags}" as="tag" iteration="iterator">{tag.title}{f:if(condition: '!{iterator.isLast}', then: ', ')}</f:for>
+        </p>
+    </f:if>
+</article>
+</html>
