@@ -1,0 +1,24 @@
+"pages",,,,,,,,,,,,,,,,,,,,,,,,,,
+,"uid","pid","title","slug","doktype","sys_language_uid","crdate","tstamp","tx_golb_publish_date","tx_golbevents_start","tx_golbevents_end","tx_golbevents_all_day","tx_golbevents_cancelled","tx_golbevents_location","tx_golbevents_location_text","tx_golbevents_organizer","tx_golbevents_organizer_text","tx_golbevents_link","tx_golbevents_recurrence_frequency","tx_golbevents_recurrence_interval","tx_golbevents_recurrence_weekdays","tx_golbevents_recurrence_monthly_mode","tx_golbevents_recurrence_end","tx_golbevents_recurrence_until","tx_golbevents_recurrence_count","tx_golbevents_exceptions"
+,1,0,"Root","/",1,0,1000,1000,0,\NULL,\NULL,0,0,0,,0,,,"none",1,,"dayOfMonth","never",\NULL,0,0
+,2,1,"Events","/events",1,0,1000,1000,0,\NULL,\NULL,0,0,0,,0,,,"none",1,,"dayOfMonth","never",\NULL,0,0
+,3,2,"Conference","/events/conference",42,0,1000,1000,5000,"2026-05-04 19:30:00","2026-05-04 21:00:00",0,0,1,,1,,"https://example.org/tickets","none",1,,"dayOfMonth","never",\NULL,0,0
+,4,2,"Weekly meetup","/events/weekly-meetup",42,0,2000,2000,0,"2026-06-01 18:00:00",\NULL,0,1,0,"Town hall",0,"Volunteers",,"weekly",2,"MO,WE","dayOfMonth","until","2026-12-31",0,2
+,5,2,"Holiday","/events/holiday",42,0,3000,3000,0,"2026-07-14 00:00:00",\NULL,1,0,0,,0,,,"yearly",1,,"dayOfMonth","count",\NULL,5,0
+,6,2,"A blog post","/events/a-blog-post",41,0,1000,1000,4000,\NULL,\NULL,0,0,0,,0,,,"none",1,,"dayOfMonth","never",\NULL,0,0
+"tx_golbevents_domain_model_location",,,,,,,,,,,,,,,,,,,,,,,,,,
+,"uid","pid","name","street","zip","city","country","latitude","longitude","timezone","link","description",,,,,,,,,,,,,,
+,1,2,"Carnegie Hall","881 7th Ave",10019,"New York","US",40.765,-73.98,"America/New_York","https://example.org/hall","Concert hall",,,,,,,,,,,,,,
+,2,2,"Local pub",,,"Cologne","DE",\NULL,\NULL,,,,,,,,,,,,,,,,,
+"tx_golbevents_domain_model_organizer",,,,,,,,,,,,,,,,,,,,,,,,,,
+,"uid","pid","name","email","phone","link","description",,,,,,,,,,,,,,,,,,,
+,1,2,"Golb Society","mail@example.org","+49 221 1234","https://example.org","Organizes things",,,,,,,,,,,,,,,,,,,
+"tx_golbevents_domain_model_exception",,,,,,,,,,,,,,,,,,,,,,,,,,
+,"uid","pid","event","date",,,,,,,,,,,,,,,,,,,,,,
+,1,2,4,"2026-06-08",,,,,,,,,,,,,,,,,,,,,,
+,2,2,4,"2026-06-10",,,,,,,,,,,,,,,,,,,,,,
+"tx_golbevents_domain_model_occurrence",,,,,,,,,,,,,,,,,,,,,,,,,,
+,"uid","pid","event","start","end","all_day",,,,,,,,,,,,,,,,,,,,
+,1,2,3,1778974200,1778979600,0,,,,,,,,,,,,,,,,,,,,
+,2,2,4,1780336800,1780336800,0,,,,,,,,,,,,,,,,,,,,
+,3,2,4,1780509600,1780509600,0,,,,,,,,,,,,,,,,,,,,
