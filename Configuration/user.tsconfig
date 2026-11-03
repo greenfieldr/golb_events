@@ -1,0 +1,3 @@
+# Offer the event page type (doktype 42, see Greenfieldr\GolbEvents\Constants)
+# in the "new page" drag area of the page tree.
+options.pageTree.doktypesToShowInNewPageDragArea := addToList(42)

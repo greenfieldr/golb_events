@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<xliff version="1.0">
+    <file source-language="en" datatype="plaintext" original="messages" date="2026-11-03T12:00:00Z" product-name="golb_events">
+        <header/>
+        <body>
+            <trans-unit id="pages.eventTab">
+                <source>Event</source>
+            </trans-unit>
+            <trans-unit id="pages.recurrenceTab">
+                <source>Recurrence</source>
+            </trans-unit>
+            <trans-unit id="pages.palette.dates">
+                <source>Date and time</source>
+            </trans-unit>
+            <trans-unit id="pages.palette.location">
+                <source>Location</source>
+            </trans-unit>
+            <trans-unit id="pages.palette.organizer">
+                <source>Organizer</source>
+            </trans-unit>
+            <trans-unit id="pages.palette.recurrence">
+                <source>Recurrence rule</source>
+            </trans-unit>
+            <trans-unit id="pages.tx_golbevents_start">
+                <source>Start</source>
+            </trans-unit>
+            <trans-unit id="pages.tx_golbevents_end">
+                <source>End</source>
+            </trans-unit>
+            <trans-unit id="pages.tx_golbevents_all_day">
+                <source>All day</source>
+            </trans-unit>
+            <trans-unit id="pages.tx_golbevents_cancelled">
+                <source>Cancelled</source>
+            </trans-unit>
+            <trans-unit id="pages.tx_golbevents_location">
+                <source>Location</source>
+            </trans-unit>
+            <trans-unit id="pages.tx_golbevents_location.freeText">
+                <source>Free text (no location record)</source>
+            </trans-unit>
+            <trans-unit id="pages.tx_golbevents_location_text">
+                <source>Location (free text)</source>
+            </trans-unit>
+            <trans-unit id="pages.tx_golbevents_organizer">
+                <source>Organizer</source>
+            </trans-unit>
+            <trans-unit id="pages.tx_golbevents_organizer.freeText">
+                <source>Free text (no organizer record)</source>
+            </trans-unit>
+            <trans-unit id="pages.tx_golbevents_organizer_text">
+                <source>Organizer (free text)</source>
+            </trans-unit>
+            <trans-unit id="pages.tx_golbevents_link">
+                <source>Link (registration, tickets)</source>
+            </trans-unit>
+            <trans-unit id="pages.tx_golbevents_recurrence_frequency">
+                <source>Repeat</source>
+            </trans-unit>
+            <trans-unit id="pages.tx_golbevents_recurrence_frequency.none">
+                <source>Never</source>
+            </trans-unit>
+            <trans-unit id="pages.tx_golbevents_recurrence_frequency.daily">
+                <source>Daily</source>
+            </trans-unit>
+            <trans-unit id="pages.tx_golbevents_recurrence_frequency.weekly">
+                <source>Weekly</source>
+            </trans-unit>
+            <trans-unit id="pages.tx_golbevents_recurrence_frequency.monthly">
+                <source>Monthly</source>
+            </trans-unit>
+            <trans-unit id="pages.tx_golbevents_recurrence_frequency.yearly">
+                <source>Yearly</source>
+            </trans-unit>
+            <trans-unit id="pages.tx_golbevents_recurrence_interval">
+                <source>Every (days, weeks, months or years)</source>
+            </trans-unit>
+            <trans-unit id="pages.tx_golbevents_recurrence_weekdays">
+                <source>Weekdays</source>
+            </trans-unit>
+            <trans-unit id="pages.tx_golbevents_recurrence_monthly_mode">
+                <source>Monthly on</source>
+            </trans-unit>
+            <trans-unit id="pages.tx_golbevents_recurrence_monthly_mode.dayOfMonth">
+                <source>The same day of the month</source>
+            </trans-unit>
+            <trans-unit id="pages.tx_golbevents_recurrence_monthly_mode.weekday">
+                <source>The same weekday (e.g. second Tuesday)</source>
+            </trans-unit>
+            <trans-unit id="pages.tx_golbevents_recurrence_end">
+                <source>Ends</source>
+            </trans-unit>
+            <trans-unit id="pages.tx_golbevents_recurrence_end.never">
+                <source>Never</source>
+            </trans-unit>
+            <trans-unit id="pages.tx_golbevents_recurrence_end.until">
+                <source>On date</source>
+            </trans-unit>
+            <trans-unit id="pages.tx_golbevents_recurrence_end.count">
+                <source>After number of occurrences</source>
+            </trans-unit>
+            <trans-unit id="pages.tx_golbevents_recurrence_until">
+                <source>End date</source>
+            </trans-unit>
+            <trans-unit id="pages.tx_golbevents_recurrence_count">
+                <source>Number of occurrences</source>
+            </trans-unit>
+            <trans-unit id="pages.tx_golbevents_exceptions">
+                <source>Excluded dates</source>
+            </trans-unit>
+            <trans-unit id="pages.tx_golbevents_occurrences">
+                <source>Occurrences</source>
+            </trans-unit>
+            <trans-unit id="weekday.monday">
+                <source>Monday</source>
+            </trans-unit>
+            <trans-unit id="weekday.tuesday">
+                <source>Tuesday</source>
+            </trans-unit>
+            <trans-unit id="weekday.wednesday">
+                <source>Wednesday</source>
+            </trans-unit>
+            <trans-unit id="weekday.thursday">
+                <source>Thursday</source>
+            </trans-unit>
+            <trans-unit id="weekday.friday">
+                <source>Friday</source>
+            </trans-unit>
+            <trans-unit id="weekday.saturday">
+                <source>Saturday</source>
+            </trans-unit>
+            <trans-unit id="weekday.sunday">
+                <source>Sunday</source>
+            </trans-unit>
+            <trans-unit id="tx_golbevents_domain_model_location">
+                <source>Event location</source>
+            </trans-unit>
+            <trans-unit id="tx_golbevents_domain_model_location.name">
+                <source>Name</source>
+            </trans-unit>
+            <trans-unit id="tx_golbevents_domain_model_location.street">
+                <source>Street</source>
+            </trans-unit>
+            <trans-unit id="tx_golbevents_domain_model_location.zip">
+                <source>Zip</source>
+            </trans-unit>
+            <trans-unit id="tx_golbevents_domain_model_location.city">
+                <source>City</source>
+            </trans-unit>
+            <trans-unit id="tx_golbevents_domain_model_location.country">
+                <source>Country</source>
+            </trans-unit>
+            <trans-unit id="tx_golbevents_domain_model_location.latitude">
+                <source>Latitude</source>
+            </trans-unit>
+            <trans-unit id="tx_golbevents_domain_model_location.longitude">
+                <source>Longitude</source>
+            </trans-unit>
+            <trans-unit id="tx_golbevents_domain_model_location.timezone">
+                <source>Time zone</source>
+            </trans-unit>
+            <trans-unit id="tx_golbevents_domain_model_location.timezone.description">
+                <source>Event times at this location are entered in this time zone.</source>
+            </trans-unit>
+            <trans-unit id="tx_golbevents_domain_model_location.timezone.server">
+                <source>Server time zone</source>
+            </trans-unit>
+            <trans-unit id="tx_golbevents_domain_model_location.link">
+                <source>Link</source>
+            </trans-unit>
+            <trans-unit id="tx_golbevents_domain_model_location.description">
+                <source>Description</source>
+            </trans-unit>
+            <trans-unit id="tx_golbevents_domain_model_organizer">
+                <source>Event organizer</source>
+            </trans-unit>
+            <trans-unit id="tx_golbevents_domain_model_organizer.name">
+                <source>Name</source>
+            </trans-unit>
+            <trans-unit id="tx_golbevents_domain_model_organizer.email">
+                <source>Email</source>
+            </trans-unit>
+            <trans-unit id="tx_golbevents_domain_model_organizer.phone">
+                <source>Phone</source>
+            </trans-unit>
+            <trans-unit id="tx_golbevents_domain_model_organizer.link">
+                <source>Link</source>
+            </trans-unit>
+            <trans-unit id="tx_golbevents_domain_model_organizer.description">
+                <source>Description</source>
+            </trans-unit>
+            <trans-unit id="tx_golbevents_domain_model_exception">
+                <source>Excluded date</source>
+            </trans-unit>
+            <trans-unit id="tx_golbevents_domain_model_exception.event">
+                <source>Event</source>
+            </trans-unit>
+            <trans-unit id="tx_golbevents_domain_model_exception.date">
+                <source>Date</source>
+            </trans-unit>
+            <trans-unit id="tx_golbevents_domain_model_occurrence">
+                <source>Event occurrence</source>
+            </trans-unit>
+            <trans-unit id="tx_golbevents_domain_model_occurrence.event">
+                <source>Event</source>
+            </trans-unit>
+            <trans-unit id="tx_golbevents_domain_model_occurrence.start">
+                <source>Start</source>
+            </trans-unit>
+            <trans-unit id="tx_golbevents_domain_model_occurrence.end">
+                <source>End</source>
+            </trans-unit>
+            <trans-unit id="tx_golbevents_domain_model_occurrence.all_day">
+                <source>All day</source>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>
