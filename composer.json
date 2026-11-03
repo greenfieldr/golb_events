@@ -25,6 +25,7 @@
 	"require": {
 		"php": "^8.2",
 		"greenfieldr/golb": "^14.0 || 14.x-dev",
+		"rlanvin/php-rrule": "^3.0",
 		"typo3/cms-core": "^14.3",
 		"typo3/cms-extbase": "^14.3",
 		"typo3/cms-fluid": "^14.3",
