@@ -7,4 +7,9 @@ plugin.tx_golbevents {
         # cat=plugin.tx_golbevents/file; type=string; label=Path to layout files
         layoutRootPath = EXT:golb_events/Resources/Private/Layouts/
     }
+
+    settings {
+        # cat=plugin.tx_golbevents/a; type=int+; label=Page type (typeNum) of the iCal download of an event page
+        icalTypeNum = 1764
+    }
 }

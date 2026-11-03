@@ -34,6 +34,28 @@ plugin.tx_golbevents {
     }
 }
 
+# iCal download of the current event page as page type, e.g.
+# /events/conference?type=1764 (or /events/conference/event.ics with a
+# PageType route enhancer). Other pages answer with 404.
+golbEventsIcal = PAGE
+golbEventsIcal {
+    typeNum = {$plugin.tx_golbevents.settings.icalTypeNum}
+
+    config {
+        disableAllHeaderCode = 1
+        disablePrefixComment = 1
+        xhtml_cleaning = 0
+        admPanel = 0
+        debug = 0
+    }
+
+    10 = EXTBASEPLUGIN
+    10 {
+        extensionName = GolbEvents
+        pluginName = Ical
+    }
+}
+
 # All plugins inherit from plugin.tx_golbevents
 plugin.tx_golbevents_listview < plugin.tx_golbevents
 plugin.tx_golbevents_upcomingview < plugin.tx_golbevents

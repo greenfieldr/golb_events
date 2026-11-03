@@ -15,6 +15,10 @@ services:
   Greenfieldr\GolbEvents\Recurrence\OccurrenceSynchronizer:
     public: true
 
+  # Instantiated by the ContentDataProcessor
+  Greenfieldr\GolbEvents\DataProcessing\EventSchemaProcessor:
+    public: true
+
   Greenfieldr\GolbEvents\Property\TypeConverter\DateTimeImmutableConverter:
     tags:
       - name: extbase.type_converter

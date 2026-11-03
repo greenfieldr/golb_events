@@ -11,6 +11,7 @@ declare(strict_types=1);
  */
 
 use Greenfieldr\GolbEvents\Controller\EventController;
+use Greenfieldr\GolbEvents\Controller\IcalController;
 use Greenfieldr\GolbEvents\Hooks\DataHandlerHook;
 use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
 
@@ -19,6 +20,8 @@ defined('TYPO3') || die();
 ExtensionUtility::configurePlugin('GolbEvents', 'ListView', [EventController::class => 'list'], []);
 ExtensionUtility::configurePlugin('GolbEvents', 'UpcomingView', [EventController::class => 'upcoming'], []);
 ExtensionUtility::configurePlugin('GolbEvents', 'CalendarView', [EventController::class => 'calendar'], []);
+// iCal download of an event page, rendered by the page type "golbEventsIcal" (TypoScript)
+ExtensionUtility::configurePlugin('GolbEvents', 'Ical', [IcalController::class => 'export'], []);
 
 // Keep the generated occurrences in sync with the event pages
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass']['golb_events'] = DataHandlerHook::class;

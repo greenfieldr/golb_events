@@ -113,6 +113,33 @@ class OccurrenceRepository extends Repository
     }
 
     /**
+     * The next occurrence of an event (the first one that has not ended at
+     * the given time), or its last occurrence if all have ended.
+     */
+    public function findNextOfEvent(Event $event, \DateTimeImmutable $now): ?Occurrence
+    {
+        $query = $this->createQuery();
+        $query->matching($query->logicalAnd(
+            $query->equals('event', $event),
+            $query->greaterThanOrEqual('end', $now->getTimestamp())
+        ));
+        $query->setOrderings(['start' => 'ASC']);
+        $query->setLimit(1);
+        $next = $query->execute()->getFirst();
+        if ($next instanceof Occurrence) {
+            return $next;
+        }
+
+        $query = $this->createQuery();
+        $query->matching($query->equals('event', $event));
+        $query->setOrderings(['start' => 'DESC']);
+        $query->setLimit(1);
+        $last = $query->execute()->getFirst();
+
+        return $last instanceof Occurrence ? $last : null;
+    }
+
+    /**
      * The uids of all pages below the root pages (not the root pages
      * themselves), like Golb collects blog posts.
      *
