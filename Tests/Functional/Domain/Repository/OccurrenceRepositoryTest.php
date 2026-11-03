@@ -18,6 +18,7 @@ use Greenfieldr\Golb\Domain\Repository\CategoryRepository;
 use Greenfieldr\GolbEvents\Domain\Model\Dto\EventsDemand;
 use Greenfieldr\GolbEvents\Domain\Model\Event;
 use Greenfieldr\GolbEvents\Domain\Model\Occurrence;
+use Greenfieldr\GolbEvents\Domain\Repository\EventRepository;
 use Greenfieldr\GolbEvents\Domain\Repository\OccurrenceRepository;
 use Greenfieldr\GolbEvents\Tests\Functional\AbstractOccurrenceTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -136,6 +137,25 @@ final class OccurrenceRepositoryTest extends AbstractOccurrenceTestCase
         self::assertSame([], $this->find(new EventsDemand(), []));
         self::assertSame([], $this->find(new EventsDemand(), [999]));
         self::assertSame([], $this->find(new EventsDemand(), [3]), 'an event page itself has no sub pages');
+    }
+
+    #[Test]
+    public function findNextOfEventPrefersTheNextDateAndFallsBackToTheLast(): void
+    {
+        $eventRepository = $this->get(EventRepository::class);
+        $alpha = $eventRepository->findByUid(3);
+        $epsilon = $eventRepository->findByUid(7);
+        $nested = $eventRepository->findByUid(12);
+        self::assertInstanceOf(Event::class, $alpha);
+        self::assertInstanceOf(Event::class, $epsilon);
+        self::assertInstanceOf(Event::class, $nested);
+        $now = new \DateTimeImmutable('@' . self::NOW);
+
+        self::assertSame(2, $this->subject->findNextOfEvent($alpha, $now)?->getUid(), 'tomorrow, not two days ago');
+        self::assertSame(11, $this->subject->findNextOfEvent($epsilon, $now)?->getUid(), 'in five days, not ten days ago');
+        self::assertSame(11, $this->subject->findNextOfEvent($epsilon, new \DateTimeImmutable('@' . (self::NOW + 10 * 86400)))?->getUid(), 'the last one once all have ended');
+        self::assertSame(9, $this->subject->findNextOfEvent($nested, $now)?->getUid());
+        self::assertNull($this->subject->findNextOfEvent(new Event(), $now));
     }
 
     #[Test]

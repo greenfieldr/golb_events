@@ -1,12 +1,12 @@
 "pages",,,,,,,,,,,,,,,,,,,,,,
-,"uid","pid","title","slug","doktype","hidden","sys_language_uid","crdate","tstamp","author","abstract","tx_golb_publish_date","tx_golb_top_post","tx_golb_tags","categories","tx_golbevents_start","tx_golbevents_all_day","tx_golbevents_cancelled","tx_golbevents_location","tx_golbevents_location_text","tx_golbevents_organizer_text","tx_golbevents_occurrences"
-,1,0,"Root","/",1,0,0,1000,1000,"","",0,0,0,0,\NULL,0,0,0,"","",0
-,2,1,"Events","/events",1,0,0,1000,1000,"","",0,0,0,0,\NULL,0,0,0,"","",0
-,3,2,"Spring concert","/events/spring-concert",42,0,0,3000,3000,"Zoe","A concert.",100,1,1,1,"2099-03-10 19:30:00",0,0,1,"","Golb Society",1
-,4,2,"Summer festival","/events/summer-festival",42,0,0,4000,4000,"","",0,0,1,0,"2099-07-01 00:00:00",1,0,0,"Town hall","",1
-,5,2,"Autumn walk","/events/autumn-walk",42,0,0,5000,5000,"","",0,0,0,0,"2099-10-05 09:00:00",0,1,0,"","",1
-,6,2,"Old meetup","/events/old-meetup",42,0,0,6000,6000,"","",0,0,0,0,"2001-05-04 18:00:00",0,0,0,"","",2
-,7,1,"Empty section","/empty",1,0,0,1000,1000,"","",0,0,0,0,\NULL,0,0,0,"","",0
+,"uid","pid","title","slug","doktype","hidden","sys_language_uid","crdate","tstamp","author","abstract","tx_golb_publish_date","tx_golb_top_post","tx_golb_tags","categories","tx_golbevents_start","tx_golbevents_end","tx_golbevents_all_day","tx_golbevents_cancelled","tx_golbevents_location","tx_golbevents_location_text","tx_golbevents_organizer_text","tx_golbevents_occurrences"
+,1,0,"Root","/",1,0,0,1000,1000,"","",0,0,0,0,\NULL,\NULL,0,0,0,"","",0
+,2,1,"Events","/events",1,0,0,1000,1000,"","",0,0,0,0,\NULL,\NULL,0,0,0,"","",0
+,3,2,"Spring concert","/events/spring-concert",42,0,0,3000,3000,"Zoe","A concert.",100,1,1,1,"2099-03-10 19:30:00","2099-03-10 21:00:00",0,0,1,"","Golb Society",1
+,4,2,"Summer festival","/events/summer-festival",42,0,0,4000,4000,"","",0,0,1,0,"2099-07-01 00:00:00","2099-07-03 00:00:00",1,0,0,"Town hall","",1
+,5,2,"Autumn walk","/events/autumn-walk",42,0,0,5000,5000,"","",0,0,0,0,"2099-10-05 09:00:00",\NULL,0,1,0,"","",1
+,6,2,"Old meetup","/events/old-meetup",42,0,0,6000,6000,"","",0,0,0,0,"2001-05-04 18:00:00","2001-05-04 20:00:00",0,0,0,"","",2
+,7,1,"Empty section","/empty",1,0,0,1000,1000,"","",0,0,0,0,\NULL,\NULL,0,0,0,"","",0
 "tx_golbevents_domain_model_occurrence",,,,,,,,,,,,,,,,,,,,,,
 ,"uid","pid","event","start","end","all_day",,,,,,,,,,,,,,,,
 ,1,2,3,4076854200,4076859600,0,,,,,,,,,,,,,,,,

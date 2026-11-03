@@ -1,0 +1,20 @@
+config.no_cache = 1
+
+page = PAGE
+page {
+    10 = FLUIDTEMPLATE
+    10 {
+        template = TEXT
+        template.value (
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+[event:{event.title}:{event.locationName}]
+[schema:{eventSchema.startDate}:{eventSchema.eventStatus}]
+<f:if condition="{eventSchemaJson}"><script type="application/ld+json">{eventSchemaJson -> f:format.raw()}</script></f:if>
+</html>
+        )
+
+        dataProcessing {
+            10 = Greenfieldr\GolbEvents\DataProcessing\EventSchemaProcessor
+        }
+    }
+}
