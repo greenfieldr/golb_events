@@ -43,3 +43,30 @@ Setup
 #.  **Event root page:** Create a page (any type) that will contain the
     events, for example "Events". Events can be nested in sub pages or
     folders below it; the plugins collect them recursively.
+
+#.  **Plugins:** Add the content element :guilabel:`Golb > Event list`,
+    :guilabel:`Upcoming events` or :guilabel:`Event calendar` to a page
+    and select the event root page(s) in the :guilabel:`Pages` field. See
+    :ref:`editor-plugins`.
+
+#.  **Optional:** Create locations and organizers in a folder of your
+    choice with the :guilabel:`Web > List` module, see
+    :ref:`editor-locations`.
+
+..  _installation-scheduler:
+
+Scheduler
+=========
+
+The dates of recurring events are generated when an event is saved, two
+years ahead by default (see :ref:`configuration-extension`). To keep that
+horizon moving, run the command regularly, for example daily through the
+:guilabel:`Execute console commands` task of the scheduler or a cron job:
+
+..  code-block:: bash
+
+    vendor/bin/typo3 golbevents:occurrences:generate
+
+The command regenerates the dates of all events. With ``--event=<uid>``
+it regenerates a single event, for example after changes made directly in
+the database.

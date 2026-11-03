@@ -9,10 +9,19 @@ Golb Events is an add-on to the TYPO3 blog extension
 [Golb](https://github.com/greenfieldr/golb) that uses **pages as events**.
 An event is a page of the custom page type "Event": it is edited in the page
 tree, built from regular content elements and carries its dates, location,
-organizer and recurrence on the page record. Golb's tags, categories and
-related pages work for events as well. Plugins list upcoming and past
-events and render a month calendar; events provide an iCal download and
-schema.org metadata.
+organizer and recurrence rule on the page record. Golb's tags, categories
+and related pages work for events as well.
+
+- Locations (with address, coordinates and time zone) and organizers as
+  reusable records or free text
+- Recurring events with excluded dates; every date is stored as an
+  occurrence and kept in sync when pages are saved, plus a CLI command for
+  the scheduler
+- Three plugins: a paginated *Event list*, *Upcoming events* and a month
+  *Event calendar*, filtered by date mode or range, categories, tags and
+  top events
+- iCal download of every event page and schema.org structured data through
+  a data processor
 
 ## Compatibility
 
@@ -29,8 +38,10 @@ composer require greenfieldr/golb_events
 ```
 
 Then run "Analyze Database Structure", include the static TypoScript
-"Golb Events" and create event pages of type "Event". The full
-documentation is in the [Documentation](Documentation/) folder.
+"Golb" and "Golb Events", create event pages of type "Event" below an event
+root page and add one of the plugins. Run `golbevents:occurrences:generate`
+regularly to extend the dates of recurring events. The full documentation
+is in the [Documentation](Documentation/) folder.
 
 ## Development
 

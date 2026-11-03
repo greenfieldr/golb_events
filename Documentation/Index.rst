@@ -48,6 +48,10 @@ list upcoming and past events and render a month calendar.
 
     Introduction/Index
     Installation/Index
+    Editor/Index
+    Configuration/Index
+    Templating/Index
+    Developer/Index
 
 ..  Meta Menu
 

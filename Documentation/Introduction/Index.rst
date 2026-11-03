@@ -35,6 +35,31 @@ Because events are pages, everything TYPO3 offers for pages applies:
 URL routing, translations, workspaces, access restrictions, SEO fields,
 caching and the page module.
 
+..  _features:
+
+Features
+========
+
+*   Custom page type "Event" with its own page tree icon
+*   Start and end as wall clock times, all day events, cancelled flag
+*   Locations (address, coordinates, time zone) and organizers as reusable
+    records, or as free text
+*   Recurring events: daily, weekly, monthly, yearly with interval,
+    weekdays, "same weekday of the month", end date or count and excluded
+    dates; every date is stored as occurrence and kept in sync
+*   Time zones per location; a weekly 19:00 event stays at 19:00 across
+    daylight saving transitions
+*   Event list with pagination, Upcoming events with limit and a month
+    calendar
+*   Filtering by upcoming, past, all or a date range, categories including
+    sub categories, tags, top events and excluded events
+*   Sorting by event date, publish date, creation date, modification date,
+    title or author
+*   Filtering by URL parameters (date range, categories, tags, page) if
+    the plugin allows it
+*   iCal download of every event page and schema.org structured data
+*   Overridable Fluid templates that share Golb's layout and pagination
+
 ..  _compatibility:
 
 Compatibility
