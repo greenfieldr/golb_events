@@ -5,7 +5,7 @@ this file. The format is based on conventional commits; the major version
 follows the supported TYPO3 major version (14.x.x for TYPO3 14). The file is
 regenerated with git-cliff on every release.
 
-## [Unreleased]
+## [14.0.0] - 2026-11-04
 
 ### Features
 
@@ -21,6 +21,13 @@ regenerated with git-cliff on every release.
   `EventSchemaProcessor` provides the next and the upcoming occurrences
   (`occurrenceAs`, `upcomingAs`, `upcomingLimit`) and
   `OccurrenceRepository::findUpcomingOfEvent()` finds them
+- **routing:** Route enhancer configuration for speaking URLs:
+  `Configuration/Routing/RouteEnhancers.yaml` maps the Event list plugin
+  (pagination `/page/2`, date mode `/past`, `/upcoming` and `/all`, tag
+  filter `/tag/<slug>`, category filter `/category/<title>-<uid>` and
+  their combinations) and the Event calendar plugin (`/<year>/<month>`);
+  `Configuration/Routing/RouteEnhancersIcal.yaml` maps the iCal download
+  to `/<event>/event.ics`
 
 - Event page type (doktype 42) with start and end as wall clock times,
   all day and cancelled flags, location and organizer as record or free
@@ -39,8 +46,16 @@ regenerated with git-cliff on every release.
   structured data through a data processor
 - Documentation for editors, integrators and developers
 
+### Bug fixes
+
+- Saving an event with excluded dates failed because `foreign_sortby`
+  made the DataHandler write the sorting into the `date` column; the
+  exceptions are now ordered with `foreign_default_sortby`
+
 ### Build and CI
 
 - Extension skeleton with the Golb tooling: coding standards, PHPStan,
   Rector, Fractor, unit and functional tests, CI, release and
   documentation workflows
+- Add `ext_emconf.php` for TER uploads and classic installations; the
+  release workflow checks its version against the tag
