@@ -12,18 +12,24 @@ declare(strict_types=1);
 
 namespace Greenfieldr\GolbEvents\Tests\Functional\Recurrence;
 
+use Greenfieldr\GolbEvents\Event\AfterOccurrencesSynchronizedEvent;
 use Greenfieldr\GolbEvents\Recurrence\EventSchedule;
 use Greenfieldr\GolbEvents\Recurrence\GeneratedOccurrence;
 use Greenfieldr\GolbEvents\Recurrence\OccurrenceGenerator;
+use Greenfieldr\GolbEvents\Recurrence\OccurrenceRecord;
 use Greenfieldr\GolbEvents\Recurrence\OccurrenceSynchronizer;
 use Greenfieldr\GolbEvents\Recurrence\RecurrenceRuleBuilder;
 use Greenfieldr\GolbEvents\Tests\Functional\AbstractOccurrenceTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
+use Symfony\Component\DependencyInjection\Container;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Database\Connection;
+use TYPO3\CMS\Core\EventDispatcher\ListenerProvider;
 
 #[CoversClass(OccurrenceSynchronizer::class)]
+#[CoversClass(OccurrenceRecord::class)]
+#[CoversClass(AfterOccurrencesSynchronizedEvent::class)]
 #[CoversClass(OccurrenceGenerator::class)]
 #[CoversClass(GeneratedOccurrence::class)]
 #[CoversClass(EventSchedule::class)]
@@ -229,6 +235,155 @@ final class OccurrenceSynchronizerTest extends AbstractOccurrenceTestCase
 
         self::assertSame([$row], $this->occurrenceRowsOf(3));
         self::assertSame(1, $this->countRowsOfEventIncludingDeleted(3));
+    }
+
+    /**
+     * Registers a listener that collects the dispatched events in $dispatched.
+     *
+     * @param list<AfterOccurrencesSynchronizedEvent> $dispatched
+     */
+    private function listenForEvents(array &$dispatched): void
+    {
+        $container = $this->get('service_container');
+        self::assertInstanceOf(Container::class, $container);
+        $container->set(
+            'golb-events-test-listener',
+            static function (AfterOccurrencesSynchronizedEvent $event) use (&$dispatched): void {
+                $dispatched[] = $event;
+            }
+        );
+        $this->get(ListenerProvider::class)->addListener(AfterOccurrencesSynchronizedEvent::class, 'golb-events-test-listener');
+    }
+
+    /**
+     * @param list<OccurrenceRecord> $records
+     * @return int[]
+     */
+    private function startsOf(array $records): array
+    {
+        return array_map(static fn(OccurrenceRecord $record): int => $record->start, $records);
+    }
+
+    #[Test]
+    public function eventIsDispatchedWithTheAddedOccurrences(): void
+    {
+        $dispatched = [];
+        $this->listenForEvents($dispatched);
+
+        // Event 5 has no occurrence in the fixture, both dates are new
+        $this->subject->synchronizeEvent(5);
+
+        self::assertCount(1, $dispatched);
+        $event = $dispatched[0];
+        self::assertSame(5, $event->getEventUid());
+        self::assertSame(2, $event->getCount());
+        self::assertTrue($event->hasChanges());
+        self::assertSame([], $event->getUpdated());
+        self::assertSame([], $event->getRemoved());
+        self::assertCount(2, $event->getAdded());
+        self::assertSame($this->occurrenceUidsOf(5), array_map(static fn(OccurrenceRecord $record): int => $record->uid, $event->getAdded()));
+        self::assertSame(
+            [(new \DateTimeImmutable('2026-07-14 00:00:00'))->getTimestamp(), (new \DateTimeImmutable('2027-07-14 00:00:00'))->getTimestamp()],
+            $this->startsOf($event->getAdded())
+        );
+        self::assertSame(2, $event->getAdded()[0]->pid);
+        self::assertSame((new \DateTimeImmutable('2026-07-14 23:59:59'))->getTimestamp(), $event->getAdded()[0]->end);
+        self::assertTrue($event->getAdded()[0]->allDay);
+    }
+
+    #[Test]
+    public function eventWithoutChangesIsDispatchedWithoutChanges(): void
+    {
+        $this->subject->synchronizeEvent(3);
+        $dispatched = [];
+        $this->listenForEvents($dispatched);
+
+        $this->subject->synchronizeEvent(3);
+
+        self::assertCount(1, $dispatched);
+        self::assertFalse($dispatched[0]->hasChanges());
+        self::assertSame(1, $dispatched[0]->getCount());
+    }
+
+    #[Test]
+    public function eventReportsUpdatedAndRemovedOccurrences(): void
+    {
+        $this->subject->synchronizeEvent(4);
+        $before = $this->occurrenceRowsOf(4);
+        $dispatched = [];
+        $this->listenForEvents($dispatched);
+
+        // Later end and an end date in October: the remaining dates are updated, the later ones removed
+        $this->updatePage(4, ['tx_golbevents_end' => '2026-06-01 20:00:00', 'tx_golbevents_recurrence_until' => '2026-10-31']);
+        $this->subject->synchronizeEvent(4);
+
+        self::assertCount(1, $dispatched);
+        $event = $dispatched[0];
+        self::assertSame([], $event->getAdded());
+        self::assertNotSame([], $event->getUpdated());
+        self::assertNotSame([], $event->getRemoved());
+        self::assertCount(count($before), [...$event->getUpdated(), ...$event->getRemoved()]);
+        self::assertCount($event->getCount(), $event->getUpdated());
+        $updated = $event->getUpdated()[0];
+        self::assertSame($before[0]['uid'], $updated->uid);
+        self::assertSame($before[0]['start'], $updated->start);
+        self::assertSame($before[0]['start'] + 7200, $updated->end, 'the new end');
+        $removed = $event->getRemoved();
+        self::assertSame(array_column(array_slice($before, -count($removed)), 'start'), $this->startsOf($removed));
+        self::assertSame(end($before)['uid'], end($removed)->uid);
+    }
+
+    #[Test]
+    public function eventIsDispatchedWhenThePageIsNoEventAnyMore(): void
+    {
+        $this->subject->synchronizeEvent(3);
+        [$row] = $this->occurrenceRowsOf(3);
+        $dispatched = [];
+        $this->listenForEvents($dispatched);
+
+        $this->updatePage(3, ['doktype' => 1], ['doktype' => Connection::PARAM_INT]);
+        $this->subject->synchronizeEvent(3);
+
+        self::assertCount(1, $dispatched);
+        self::assertSame(0, $dispatched[0]->getCount());
+        self::assertSame([$row['uid']], array_map(static fn(OccurrenceRecord $record): int => $record->uid, $dispatched[0]->getRemoved()));
+    }
+
+    #[Test]
+    public function deletingTheOccurrencesDispatchesTheRemovedOnes(): void
+    {
+        $this->subject->synchronizeEvent(5);
+        $uids = $this->occurrenceUidsOf(5);
+        $dispatched = [];
+        $this->listenForEvents($dispatched);
+
+        $this->subject->deleteOccurrencesOfEvent(5);
+
+        self::assertSame([], $this->occurrencesOf(5));
+        self::assertCount(1, $dispatched);
+        self::assertSame(5, $dispatched[0]->getEventUid());
+        self::assertSame($uids, array_map(static fn(OccurrenceRecord $record): int => $record->uid, $dispatched[0]->getRemoved()));
+    }
+
+    #[Test]
+    public function synchronizeAllDispatchesForOrphansToo(): void
+    {
+        $this->getConnectionPool()->getConnectionForTable('tx_golbevents_domain_model_occurrence')->insert(
+            'tx_golbevents_domain_model_occurrence',
+            ['pid' => 2, 'event' => 6, 'start' => 1, 'end' => 1, 'all_day' => 0]
+        );
+        $dispatched = [];
+        $this->listenForEvents($dispatched);
+
+        $this->subject->synchronizeAll();
+
+        $byEvent = [];
+        foreach ($dispatched as $event) {
+            $byEvent[$event->getEventUid()] = $event;
+        }
+        self::assertSame([3, 4, 5, 6], array_keys($byEvent));
+        self::assertSame(0, $byEvent[6]->getCount());
+        self::assertSame([1], $this->startsOf($byEvent[6]->getRemoved()));
     }
 
     /**

@@ -13,6 +13,8 @@ declare(strict_types=1);
 namespace Greenfieldr\GolbEvents\Recurrence;
 
 use Greenfieldr\GolbEvents\Constants;
+use Greenfieldr\GolbEvents\Event\AfterOccurrencesSynchronizedEvent;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Database\Connection;
@@ -27,7 +29,8 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
  * Occurrence records are stable: an existing occurrence is matched by its
  * start, kept with its uid and updated in place if its end, all day flag or
  * pid changed. Only dates that vanished are deleted and only new dates are
- * inserted, so other extensions can safely reference occurrence uids.
+ * inserted, so other extensions can safely reference occurrence uids. The
+ * changes are announced with the AfterOccurrencesSynchronizedEvent.
  */
 class OccurrenceSynchronizer
 {
@@ -45,6 +48,7 @@ class OccurrenceSynchronizer
         private readonly OccurrenceGenerator $generator,
         private readonly ExtensionConfiguration $extensionConfiguration,
         private readonly Context $context,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {}
 
     /**
@@ -156,7 +160,7 @@ class OccurrenceSynchronizer
      * Brings the stored occurrences of an event in line with the generated
      * ones: existing records are matched by their start and kept (updated if
      * end, all day flag or pid differ), vanished dates are deleted and new
-     * dates inserted.
+     * dates inserted. Dispatches the AfterOccurrencesSynchronizedEvent.
      *
      * @param GeneratedOccurrence[] $generated
      */
@@ -164,10 +168,12 @@ class OccurrenceSynchronizer
     {
         $existingByStart = [];
         $remove = [];
+        $removed = [];
         foreach ($this->findOccurrenceRows($eventUid) as $row) {
             // Soft deleted rows and duplicate starts cannot be matched and are cleaned up
             if ($this->toInt($row['deleted'] ?? 0) !== 0 || isset($existingByStart[$this->toInt($row['start'])])) {
                 $remove[] = $this->toInt($row['uid']);
+                $removed[] = OccurrenceRecord::fromRow($row);
                 continue;
             }
             $existingByStart[$this->toInt($row['start'])] = $row;
@@ -176,6 +182,7 @@ class OccurrenceSynchronizer
         $now = $this->toInt($this->context->getPropertyFromAspect('date', 'timestamp'));
         $insert = [];
         $update = [];
+        $updated = [];
         foreach ($generated as $occurrence) {
             $existing = $existingByStart[$occurrence->start] ?? null;
             if ($existing === null) {
@@ -201,10 +208,12 @@ class OccurrenceSynchronizer
                     'end' => $occurrence->end,
                     'all_day' => (int)$occurrence->allDay,
                 ];
+                $updated[] = new OccurrenceRecord($this->toInt($existing['uid']), $pid, $occurrence->start, $occurrence->end, $occurrence->allDay);
             }
         }
         foreach ($existingByStart as $row) {
             $remove[] = $this->toInt($row['uid']);
+            $removed[] = OccurrenceRecord::fromRow($row);
         }
 
         $connection = $this->connectionPool->getConnectionForTable(self::TABLE_OCCURRENCES);
@@ -232,6 +241,20 @@ class OccurrenceSynchronizer
                 );
             }
         });
+
+        $added = [];
+        if ($insert !== []) {
+            $insertedStarts = array_flip(array_column($insert, 'start'));
+            foreach ($this->findOccurrenceRows($eventUid) as $row) {
+                if (isset($insertedStarts[$this->toInt($row['start'])]) && $this->toInt($row['deleted'] ?? 0) === 0) {
+                    $added[] = OccurrenceRecord::fromRow($row);
+                }
+            }
+        }
+
+        $this->eventDispatcher->dispatch(
+            new AfterOccurrencesSynchronizedEvent($eventUid, $added, $updated, $removed, count($generated))
+        );
     }
 
     /**

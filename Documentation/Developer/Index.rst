@@ -155,6 +155,41 @@ Extending
     :php:`DateTimeConverter::CONFIGURATION_DATE_FORMAT`.
 *   **Workspaces:** Occurrences are generated from live records; changes in
     a workspace become visible in the lists when the page is published.
+*   **React to changed dates:** The PSR-14 event
+    :php:`\Greenfieldr\GolbEvents\Event\AfterOccurrencesSynchronizedEvent`
+    is dispatched whenever the occurrences of an event page were
+    synchronized (page, excluded date or location time zone saved, page
+    copied, moved, deleted or undeleted, and by the command). It tells
+    which occurrence records were added, updated in place and removed,
+    each as :php:`\Greenfieldr\GolbEvents\Recurrence\OccurrenceRecord`
+    with ``uid``, ``pid``, ``start``, ``end`` and ``allDay``, and how
+    many occurrences the event has now. Use it to keep your own records
+    that reference occurrences in sync:
+
+    ..  code-block:: php
+        :caption: EXT:my_ext/Classes/EventListener/OccurrencesChanged.php
+
+        use Greenfieldr\GolbEvents\Event\AfterOccurrencesSynchronizedEvent;
+        use TYPO3\CMS\Core\Attribute\AsEventListener;
+
+        #[AsEventListener]
+        final class OccurrencesChanged
+        {
+            public function __invoke(AfterOccurrencesSynchronizedEvent $event): void
+            {
+                if (!$event->hasChanges()) {
+                    return;
+                }
+                foreach ($event->getRemoved() as $occurrence) {
+                    // e.g. notify the participants of the date $occurrence->uid
+                }
+            }
+        }
+
+    The event is dispatched after the database was changed; it carries
+    the uid of the page, which may no longer be an event or exist at all
+    (then ``getCount()`` is ``0`` and every former occurrence is in
+    ``getRemoved()``).
 
 ..  _developer-qa:
 
