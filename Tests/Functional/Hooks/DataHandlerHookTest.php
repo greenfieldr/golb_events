@@ -113,6 +113,26 @@ final class DataHandlerHookTest extends AbstractOccurrenceTestCase
     }
 
     #[Test]
+    public function savingAnEventWithExceptionsThroughTheInlineFieldKeepsTheirDates(): void
+    {
+        $this->process([
+            'pages' => [4 => ['tx_golbevents_exceptions' => '1,2,NEW1']],
+            'tx_golbevents_domain_model_exception' => ['NEW1' => ['pid' => 2, 'event' => 4, 'date' => '2026-06-15T00:00:00']],
+        ]);
+
+        $dates = $this->getConnectionPool()->getConnectionForTable('tx_golbevents_domain_model_exception')
+            ->createQueryBuilder()
+            ->select('date')
+            ->from('tx_golbevents_domain_model_exception')
+            ->where('event = 4')
+            ->orderBy('date')
+            ->executeQuery()
+            ->fetchFirstColumn();
+        self::assertSame(['2026-06-08', '2026-06-10', '2026-06-15'], $dates);
+        self::assertNotContains(self::serverIso('2026-06-15 18:00:00'), $this->occurrenceStartsOf(4));
+    }
+
+    #[Test]
     public function deletingAnExcludedDateRestoresTheOccurrence(): void
     {
         // Exception 1 excludes 2026-06-08, a Monday in a skipped week; move it to a counted week first

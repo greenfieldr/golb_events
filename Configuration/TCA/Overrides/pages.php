@@ -310,7 +310,7 @@ $boot = function () {
                 'type' => 'inline',
                 'foreign_table' => 'tx_golbevents_domain_model_exception',
                 'foreign_field' => 'event',
-                'foreign_sortby' => 'date',
+                'foreign_default_sortby' => 'date',
                 'maxitems' => 9999,
                 'appearance' => [
                     'collapseAll' => true,
@@ -327,7 +327,7 @@ $boot = function () {
                 'type' => 'inline',
                 'foreign_table' => 'tx_golbevents_domain_model_occurrence',
                 'foreign_field' => 'event',
-                'foreign_sortby' => 'start',
+                'foreign_default_sortby' => 'start',
                 'maxitems' => 9999,
             ],
         ],
