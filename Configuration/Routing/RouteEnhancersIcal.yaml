@@ -1,0 +1,28 @@
+# PageType route enhancer for the iCal download of event pages: maps the
+# page type of the download (constant plugin.tx_golbevents.settings.icalTypeNum,
+# 1764 by default) to the suffix "event.ics", e.g.
+#
+#   /events/conference?type=1764  ->  /events/conference/event.ics
+#
+# Import the file into the site configuration (config/sites/<identifier>/config.yaml):
+#
+#   imports:
+#     - { resource: 'EXT:golb_events/Configuration/Routing/RouteEnhancersIcal.yaml' }
+#
+# If the site configuration already has a PageType enhancer (for example for
+# a sitemap.xml or a .html suffix), do not import this file but add the
+# mapping to the existing enhancer:
+#
+#   routeEnhancers:
+#     PageTypeSuffix:
+#       type: PageType
+#       map:
+#         'sitemap.xml': 1533906435
+#         'event.ics': 1764
+#
+# If you change the constant, change the page type here as well.
+routeEnhancers:
+  GolbEventsIcal:
+    type: PageType
+    map:
+      'event.ics': 1764

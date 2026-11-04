@@ -29,6 +29,9 @@ and related pages work for events as well.
   plain stylesheet without framework or brand colours that adapts to the
   site. Every piece can be switched off, overridden or replaced with your
   own templates and CSS.
+- Route enhancer configurations for speaking URLs of the pagination, the
+  filters, the calendar months and the iCal download, ready to import into
+  the site configuration
 
 ## Compatibility
 

@@ -56,6 +56,18 @@ Setup
     :typoscript:`lib.golbEvents.event` in the page template to render
     event pages, see :ref:`templating`.
 
+#.  **Routing (optional):** Import the shipped route enhancer
+    configuration into the site configuration for speaking URLs of the
+    pagination, the filters, the calendar and the iCal download, see
+    :ref:`configuration-routing` and :ref:`configuration-ical`:
+
+    ..  code-block:: yaml
+        :caption: config/sites/main/config.yaml
+
+        imports:
+          - { resource: 'EXT:golb_events/Configuration/Routing/RouteEnhancers.yaml' }
+          - { resource: 'EXT:golb_events/Configuration/Routing/RouteEnhancersIcal.yaml' }
+
 #.  **Optional:** Create locations and organizers in a folder of your
     choice with the :guilabel:`Web > List` module, see
     :ref:`editor-locations`.

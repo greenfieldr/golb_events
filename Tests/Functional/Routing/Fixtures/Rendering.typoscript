@@ -1,0 +1,12 @@
+config.no_cache = 1
+
+page = PAGE
+page.10 < styles.content.get
+
+# Event pages render the detail view with the "Add to calendar" link
+[page["doktype"] == 42]
+    page.10 >
+    page.10 < lib.golbEvents.event
+[END]
+
+plugin.tx_golbevents_listview.settings.filterLinks.enabled = 1

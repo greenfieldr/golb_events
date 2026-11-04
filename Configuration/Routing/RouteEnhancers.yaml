@@ -1,0 +1,133 @@
+# Route enhancers for the Golb Events plugins: speaking URLs for the
+# pagination, the date mode and the category and tag filters of the Event
+# list plugin and for the month navigation of the Event calendar plugin.
+#
+# Import the file into the site configuration (config/sites/<identifier>/config.yaml):
+#
+#   imports:
+#     - { resource: 'EXT:golb_events/Configuration/Routing/RouteEnhancers.yaml' }
+#
+# and restrict the enhancers to the pages with the plugins below the import,
+# the imported configuration is merged with the site configuration:
+#
+#   routeEnhancers:
+#     GolbEventsList:
+#       limitToPages: [12]
+#     GolbEventsCalendar:
+#       limitToPages: [13]
+#
+# The Upcoming events plugin does not generate URL parameters; its category
+# and tag links point to the Event list plugin and use these routes. The
+# iCal download has its own file, see RouteEnhancersIcal.yaml.
+#
+# Resulting URLs (Event list on /events, Event calendar on /calendar):
+#
+#   /events                        first page, no arguments (also the "Show all events" link)
+#   /events/page/2                 demand[currentPage]=2
+#   /events/past                   demand[mode]=past (also "upcoming" and "all")
+#   /events/past/page/2
+#   /events/tag/typo3              demand[tag]=<uid of the tag with slug "typo3">
+#   /events/tag/typo3/page/2
+#   /events/category/News-7        demand[category]=7
+#   /events/category/News-7/page/2
+#   /calendar/2026/03              year=2026, month=3
+#
+# The filters of the Event list require "Allow demand overwrite" in the
+# plugin. Tags use their slug field. System categories have no slug, so the
+# category routes carry the title and the uid of the record; copy the file
+# and change the aspect if you prefer a different pattern. The date range
+# (demand[from], demand[to]) stays a query parameter.
+routeEnhancers:
+  GolbEventsList:
+    type: Extbase
+    extension: GolbEvents
+    plugin: ListView
+    routes:
+      - routePath: '/'
+        _controller: 'Event::list'
+      - routePath: '/page/{page}'
+        _controller: 'Event::list'
+        _arguments:
+          page: 'demand/currentPage'
+      - routePath: '/{mode}'
+        _controller: 'Event::list'
+        _arguments:
+          mode: 'demand/mode'
+      - routePath: '/{mode}/page/{page}'
+        _controller: 'Event::list'
+        _arguments:
+          mode: 'demand/mode'
+          page: 'demand/currentPage'
+      - routePath: '/tag/{tag}'
+        _controller: 'Event::list'
+        _arguments:
+          tag: 'demand/tag'
+      - routePath: '/tag/{tag}/page/{page}'
+        _controller: 'Event::list'
+        _arguments:
+          tag: 'demand/tag'
+          page: 'demand/currentPage'
+      - routePath: '/category/{category}'
+        _controller: 'Event::list'
+        _arguments:
+          category: 'demand/category'
+      - routePath: '/category/{category}/page/{page}'
+        _controller: 'Event::list'
+        _arguments:
+          category: 'demand/category'
+          page: 'demand/currentPage'
+    defaultController: 'Event::list'
+    aspects:
+      page:
+        type: StaticRangeMapper
+        start: '1'
+        end: '999'
+      mode:
+        type: StaticValueMapper
+        map:
+          upcoming: upcoming
+          past: past
+          all: all
+      tag:
+        type: PersistedAliasMapper
+        tableName: tx_golb_domain_model_tag
+        routeFieldName: slug
+      category:
+        type: PersistedPatternMapper
+        tableName: sys_category
+        routeFieldPattern: '^(?P<title>.+)-(?P<uid>\d+)$'
+        routeFieldResult: '{title}-{uid}'
+
+  GolbEventsCalendar:
+    type: Extbase
+    extension: GolbEvents
+    plugin: CalendarView
+    routes:
+      - routePath: '/{year}/{month}'
+        _controller: 'Event::calendar'
+        _arguments:
+          year: 'year'
+          month: 'month'
+    defaultController: 'Event::calendar'
+    aspects:
+      # Adjust the range to the years of your events (at most 1000 values)
+      year:
+        type: StaticRangeMapper
+        start: '2000'
+        end: '2199'
+      # Two digit months in the URL, e.g. /2026/03
+      month:
+        type: StaticValueMapper
+        map:
+          '01': '1'
+          '02': '2'
+          '03': '3'
+          '04': '4'
+          '05': '5'
+          '06': '6'
+          '07': '7'
+          '08': '8'
+          '09': '9'
+          '10': '10'
+          '11': '11'
+          '12': '12'
