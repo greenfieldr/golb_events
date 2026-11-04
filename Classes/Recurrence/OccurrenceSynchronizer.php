@@ -23,6 +23,11 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
  * in sync with the event pages. Works on the live, default language records
  * through the database directly, so it can run from DataHandler hooks and
  * from the command line.
+ *
+ * Occurrence records are stable: an existing occurrence is matched by its
+ * start, kept with its uid and updated in place if its end, all day flag or
+ * pid changed. Only dates that vanished are deleted and only new dates are
+ * inserted, so other extensions can safely reference occurrence uids.
  */
 class OccurrenceSynchronizer
 {
@@ -33,6 +38,8 @@ class OccurrenceSynchronizer
 
     public const DEFAULT_HORIZON_YEARS = 2;
 
+    private const OCCURRENCE_COLUMNS = ['pid', 'tstamp', 'crdate', 'event', 'start', 'end', 'all_day'];
+
     public function __construct(
         private readonly ConnectionPool $connectionPool,
         private readonly OccurrenceGenerator $generator,
@@ -41,57 +48,36 @@ class OccurrenceSynchronizer
     ) {}
 
     /**
-     * Regenerates the occurrences of one event page. Pages that are no event
-     * (other doktype, translation, workspace version, deleted) lose their
-     * occurrences. Returns the number of occurrences stored.
+     * Synchronizes the occurrences of one event page with its dates. Pages
+     * that are no event (other doktype, translation, workspace version,
+     * deleted) lose their occurrences. Returns the number of occurrences
+     * stored.
      */
     public function synchronizeEvent(int $pageUid): int
     {
         $row = $this->findLiveEventRow($pageUid);
-        if ($row === null) {
-            $this->deleteOccurrencesOfEvent($pageUid);
-            $this->updateOccurrenceCount($pageUid, 0);
-
-            return 0;
-        }
-
-        $schedule = EventSchedule::fromRecord(
-            $row,
-            $this->findLocationTimezone($this->toInt($row['tx_golbevents_location'] ?? 0)),
-            $this->findExceptionDates($pageUid)
-        );
-        $occurrences = $schedule instanceof EventSchedule ? $this->generator->generate($schedule, $this->getHorizon()) : [];
-
-        $this->deleteOccurrencesOfEvent($pageUid);
-        if ($occurrences !== []) {
-            $now = $this->context->getPropertyFromAspect('date', 'timestamp');
-            $rows = [];
-            foreach ($occurrences as $occurrence) {
-                $rows[] = [
-                    'pid' => $this->toInt($row['pid'] ?? 0),
-                    'tstamp' => $now,
-                    'crdate' => $now,
-                    'event' => $pageUid,
-                    'start' => $occurrence->start,
-                    'end' => $occurrence->end,
-                    'all_day' => (int)$occurrence->allDay,
-                ];
-            }
-            $this->connectionPool->getConnectionForTable(self::TABLE_OCCURRENCES)->bulkInsert(
-                self::TABLE_OCCURRENCES,
-                $rows,
-                ['pid', 'tstamp', 'crdate', 'event', 'start', 'end', 'all_day'],
-                array_fill_keys(['pid', 'tstamp', 'crdate', 'event', 'start', 'end', 'all_day'], Connection::PARAM_INT)
+        $generated = [];
+        $pid = 0;
+        if ($row !== null) {
+            $pid = $this->toInt($row['pid'] ?? 0);
+            $schedule = EventSchedule::fromRecord(
+                $row,
+                $this->findLocationTimezone($this->toInt($row['tx_golbevents_location'] ?? 0)),
+                $this->findExceptionDates($pageUid)
             );
+            $generated = $schedule instanceof EventSchedule ? $this->generator->generate($schedule, $this->getHorizon()) : [];
         }
-        $this->updateOccurrenceCount($pageUid, count($occurrences));
 
-        return count($occurrences);
+        $this->storeOccurrences($pageUid, $pid, $generated);
+        $this->updateOccurrenceCount($pageUid, count($generated));
+
+        return count($generated);
     }
 
     /**
-     * Regenerates the occurrences of every event page and removes occurrences
-     * of records that are no events any more. Returns the number of events.
+     * Synchronizes the occurrences of every event page and removes
+     * occurrences of records that are no events any more. Returns the number
+     * of events.
      */
     public function synchronizeAll(): int
     {
@@ -100,21 +86,15 @@ class OccurrenceSynchronizer
             $this->synchronizeEvent($uid);
         }
 
-        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE_OCCURRENCES);
-        $queryBuilder->getRestrictions()->removeAll();
-        $queryBuilder->delete(self::TABLE_OCCURRENCES);
-        if ($eventUids !== []) {
-            $queryBuilder->where(
-                $queryBuilder->expr()->notIn('event', $queryBuilder->createNamedParameter($eventUids, Connection::PARAM_INT_ARRAY))
-            );
+        foreach ($this->findOrphanedEventUids($eventUids) as $orphanUid) {
+            $this->deleteOccurrencesOfEvent($orphanUid);
         }
-        $queryBuilder->executeStatement();
 
         return count($eventUids);
     }
 
     /**
-     * Regenerates the occurrences of all events held at a location, e.g.
+     * Synchronizes the occurrences of all events held at a location, e.g.
      * after its time zone changed. Returns the number of events.
      */
     public function synchronizeLocation(int $locationUid): int
@@ -141,10 +121,12 @@ class OccurrenceSynchronizer
         return $count;
     }
 
+    /**
+     * Removes all occurrences of an event, e.g. when its page is deleted.
+     */
     public function deleteOccurrencesOfEvent(int $pageUid): void
     {
-        $this->connectionPool->getConnectionForTable(self::TABLE_OCCURRENCES)
-            ->delete(self::TABLE_OCCURRENCES, ['event' => $pageUid], ['event' => Connection::PARAM_INT]);
+        $this->storeOccurrences($pageUid, 0, []);
     }
 
     /**
@@ -168,6 +150,131 @@ class OccurrenceSynchronizer
         }
 
         return $now->modify('+' . $years . ' years');
+    }
+
+    /**
+     * Brings the stored occurrences of an event in line with the generated
+     * ones: existing records are matched by their start and kept (updated if
+     * end, all day flag or pid differ), vanished dates are deleted and new
+     * dates inserted.
+     *
+     * @param GeneratedOccurrence[] $generated
+     */
+    protected function storeOccurrences(int $eventUid, int $pid, array $generated): void
+    {
+        $existingByStart = [];
+        $remove = [];
+        foreach ($this->findOccurrenceRows($eventUid) as $row) {
+            // Soft deleted rows and duplicate starts cannot be matched and are cleaned up
+            if ($this->toInt($row['deleted'] ?? 0) !== 0 || isset($existingByStart[$this->toInt($row['start'])])) {
+                $remove[] = $this->toInt($row['uid']);
+                continue;
+            }
+            $existingByStart[$this->toInt($row['start'])] = $row;
+        }
+
+        $now = $this->toInt($this->context->getPropertyFromAspect('date', 'timestamp'));
+        $insert = [];
+        $update = [];
+        foreach ($generated as $occurrence) {
+            $existing = $existingByStart[$occurrence->start] ?? null;
+            if ($existing === null) {
+                $insert[] = [
+                    'pid' => $pid,
+                    'tstamp' => $now,
+                    'crdate' => $now,
+                    'event' => $eventUid,
+                    'start' => $occurrence->start,
+                    'end' => $occurrence->end,
+                    'all_day' => (int)$occurrence->allDay,
+                ];
+                continue;
+            }
+            unset($existingByStart[$occurrence->start]);
+            if ($this->toInt($existing['end']) !== $occurrence->end
+                || $this->toInt($existing['all_day']) !== (int)$occurrence->allDay
+                || $this->toInt($existing['pid']) !== $pid
+            ) {
+                $update[$this->toInt($existing['uid'])] = [
+                    'pid' => $pid,
+                    'tstamp' => $now,
+                    'end' => $occurrence->end,
+                    'all_day' => (int)$occurrence->allDay,
+                ];
+            }
+        }
+        foreach ($existingByStart as $row) {
+            $remove[] = $this->toInt($row['uid']);
+        }
+
+        $connection = $this->connectionPool->getConnectionForTable(self::TABLE_OCCURRENCES);
+        $connection->transactional(function () use ($connection, $remove, $update, $insert): void {
+            if ($remove !== []) {
+                $queryBuilder = $connection->createQueryBuilder();
+                $queryBuilder->delete(self::TABLE_OCCURRENCES)
+                    ->where($queryBuilder->expr()->in('uid', $queryBuilder->createNamedParameter($remove, Connection::PARAM_INT_ARRAY)))
+                    ->executeStatement();
+            }
+            foreach ($update as $uid => $fields) {
+                $connection->update(
+                    self::TABLE_OCCURRENCES,
+                    $fields,
+                    ['uid' => $uid],
+                    array_fill_keys([...array_keys($fields), 'uid'], Connection::PARAM_INT)
+                );
+            }
+            if ($insert !== []) {
+                $connection->bulkInsert(
+                    self::TABLE_OCCURRENCES,
+                    $insert,
+                    self::OCCURRENCE_COLUMNS,
+                    array_fill_keys(self::OCCURRENCE_COLUMNS, Connection::PARAM_INT)
+                );
+            }
+        });
+    }
+
+    /**
+     * All stored occurrence rows of an event, including soft deleted ones.
+     *
+     * @return list<array<string, mixed>>
+     */
+    protected function findOccurrenceRows(int $eventUid): array
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE_OCCURRENCES);
+        $queryBuilder->getRestrictions()->removeAll();
+
+        return $queryBuilder->select('uid', 'pid', 'start', 'end', 'all_day', 'deleted')
+            ->from(self::TABLE_OCCURRENCES)
+            ->where($queryBuilder->expr()->eq('event', $queryBuilder->createNamedParameter($eventUid, Connection::PARAM_INT)))
+            ->orderBy('start')
+            ->addOrderBy('uid')
+            ->executeQuery()
+            ->fetchAllAssociative();
+    }
+
+    /**
+     * The event uids referenced by occurrences that belong to none of the
+     * given live events.
+     *
+     * @param int[] $liveEventUids
+     * @return int[]
+     */
+    protected function findOrphanedEventUids(array $liveEventUids): array
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE_OCCURRENCES);
+        $queryBuilder->getRestrictions()->removeAll();
+        $queryBuilder->select('event')
+            ->from(self::TABLE_OCCURRENCES)
+            ->groupBy('event')
+            ->orderBy('event');
+        if ($liveEventUids !== []) {
+            $queryBuilder->where(
+                $queryBuilder->expr()->notIn('event', $queryBuilder->createNamedParameter($liveEventUids, Connection::PARAM_INT_ARRAY))
+            );
+        }
+
+        return array_map($this->toInt(...), $queryBuilder->executeQuery()->fetchFirstColumn());
     }
 
     /**

@@ -21,13 +21,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Regenerates the occurrences of all events (or of one event). Meant to run
+ * Synchronizes the occurrences of all events (or of one event). Meant to run
  * regularly through the scheduler so the occurrences of recurring events
- * are extended up to the configured horizon.
+ * are extended up to the configured horizon. Existing occurrences keep their
+ * uids.
  */
 #[AsCommand(
     name: 'golbevents:occurrences:generate',
-    description: 'Regenerates the occurrences of the event pages up to the configured horizon.'
+    description: 'Synchronizes the occurrences of the event pages up to the configured horizon.'
 )]
 final class GenerateOccurrencesCommand extends Command
 {
@@ -38,7 +39,7 @@ final class GenerateOccurrencesCommand extends Command
 
     protected function configure(): void
     {
-        $this->addOption('event', 'e', InputOption::VALUE_REQUIRED, 'Regenerate the occurrences of this event page (uid) only');
+        $this->addOption('event', 'e', InputOption::VALUE_REQUIRED, 'Synchronize the occurrences of this event page (uid) only');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -60,7 +61,7 @@ final class GenerateOccurrencesCommand extends Command
         }
 
         $count = $this->synchronizer->synchronizeAll();
-        $io->success(sprintf('Regenerated the occurrences of %d event(s) up to %s.', $count, $horizon));
+        $io->success(sprintf('Synchronized the occurrences of %d event(s) up to %s.', $count, $horizon));
 
         return Command::SUCCESS;
     }

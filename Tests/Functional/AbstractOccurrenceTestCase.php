@@ -60,6 +60,38 @@ abstract class AbstractOccurrenceTestCase extends FunctionalTestCase
         );
     }
 
+    /**
+     * The stored occurrence rows of an event with their uids, ordered by start.
+     *
+     * @return list<array{uid: int, pid: int, start: int, end: int, all_day: int, tstamp: int}>
+     */
+    protected function occurrenceRowsOf(int $eventUid): array
+    {
+        $rows = $this->getConnectionPool()->getConnectionForTable('tx_golbevents_domain_model_occurrence')
+            ->select(['uid', 'pid', 'start', 'end', 'all_day', 'tstamp'], 'tx_golbevents_domain_model_occurrence', ['event' => $eventUid], [], ['start' => 'ASC'])
+            ->fetchAllAssociative();
+
+        return array_map(
+            static fn(array $row): array => [
+                'uid' => self::toInt($row['uid']),
+                'pid' => self::toInt($row['pid']),
+                'start' => self::toInt($row['start']),
+                'end' => self::toInt($row['end']),
+                'all_day' => self::toInt($row['all_day']),
+                'tstamp' => self::toInt($row['tstamp']),
+            ],
+            $rows
+        );
+    }
+
+    /**
+     * @return int[] the uids of the occurrences of an event, ordered by start
+     */
+    protected function occurrenceUidsOf(int $eventUid): array
+    {
+        return array_column($this->occurrenceRowsOf($eventUid), 'uid');
+    }
+
     protected static function toInt(mixed $value): int
     {
         self::assertIsNumeric($value);

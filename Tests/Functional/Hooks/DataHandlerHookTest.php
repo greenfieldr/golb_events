@@ -91,6 +91,40 @@ final class DataHandlerHookTest extends AbstractOccurrenceTestCase
     }
 
     #[Test]
+    public function savingAnEventWithoutDateChangesKeepsTheOccurrenceRecords(): void
+    {
+        $before = $this->occurrenceRowsOf(4);
+
+        $this->process(['pages' => [4 => ['title' => 'Weekly meetup (renamed)']]]);
+
+        self::assertSame($before, $this->occurrenceRowsOf(4));
+    }
+
+    #[Test]
+    public function changingTheEndKeepsTheOccurrenceUid(): void
+    {
+        [$before] = $this->occurrenceRowsOf(3);
+
+        $this->process(['pages' => [3 => ['tx_golbevents_end' => '2026-05-04T22:00:00']]]);
+
+        [$after] = $this->occurrenceRowsOf(3);
+        self::assertSame($before['uid'], $after['uid']);
+        self::assertSame($before['end'] + 3600, $after['end']);
+    }
+
+    #[Test]
+    public function movingAnEventPageMovesItsOccurrences(): void
+    {
+        [$before] = $this->occurrenceRowsOf(3);
+
+        $this->process([], ['pages' => [3 => ['move' => 1]]]);
+
+        [$after] = $this->occurrenceRowsOf(3);
+        self::assertSame($before['uid'], $after['uid']);
+        self::assertSame(1, $after['pid']);
+    }
+
+    #[Test]
     public function changingThePageTypeRemovesTheOccurrences(): void
     {
         $this->process(['pages' => [3 => ['doktype' => 1]]]);

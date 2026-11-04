@@ -19,7 +19,7 @@ use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Utility\MathUtility;
 
 /**
- * Regenerates the occurrences of events when event pages, their excluded
+ * Synchronizes the occurrences of events when event pages, their excluded
  * dates or their locations are changed through the DataHandler.
  */
 final readonly class DataHandlerHook

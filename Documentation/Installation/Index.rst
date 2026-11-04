@@ -86,6 +86,7 @@ horizon moving, run the command regularly, for example daily through the
 
     vendor/bin/typo3 golbevents:occurrences:generate
 
-The command regenerates the dates of all events. With ``--event=<uid>``
-it regenerates a single event, for example after changes made directly in
-the database.
+The command synchronizes the dates of all events: existing dates are
+kept, new ones up to the horizon are added and dates that no longer exist
+are removed. With ``--event=<uid>`` it synchronizes a single event, for
+example after changes made directly in the database.

@@ -99,14 +99,154 @@ final class OccurrenceSynchronizerTest extends AbstractOccurrenceTestCase
     }
 
     #[Test]
-    public function synchronizingReplacesExistingOccurrences(): void
+    public function synchronizingAgainKeepsTheOccurrenceRecords(): void
     {
         $this->subject->synchronizeEvent(4);
-        $before = $this->countAllOccurrences();
+        $before = $this->occurrenceRowsOf(4);
+        self::assertCount(32, $before);
+        self::assertNotContains(1780329600, array_column($before, 'start'), 'the stale fixture row with a wrong start was replaced');
+        $total = $this->countAllOccurrences();
 
+        $this->freezeTime('2026-01-02 12:00:00');
         $this->subject->synchronizeEvent(4);
 
-        self::assertSame($before, $this->countAllOccurrences());
+        self::assertSame($before, $this->occurrenceRowsOf(4), 'uids and timestamps are untouched');
+        self::assertSame($total, $this->countAllOccurrences());
+    }
+
+    #[Test]
+    public function changedEndIsUpdatedInPlace(): void
+    {
+        $this->subject->synchronizeEvent(3);
+        [$before] = $this->occurrenceRowsOf(3);
+
+        $this->freezeTime('2026-01-02 12:00:00');
+        $this->updatePage(3, ['tx_golbevents_end' => '2026-05-04 22:00:00']);
+        $this->subject->synchronizeEvent(3);
+
+        [$after] = $this->occurrenceRowsOf(3);
+        self::assertSame($before['uid'], $after['uid']);
+        self::assertSame($before['start'], $after['start']);
+        self::assertSame($before['end'] + 3600, $after['end']);
+        self::assertGreaterThan($before['tstamp'], $after['tstamp']);
+    }
+
+    #[Test]
+    public function changedAllDayFlagIsUpdatedInPlace(): void
+    {
+        $this->subject->synchronizeEvent(3);
+        [$before] = $this->occurrenceRowsOf(3);
+
+        // All day: the date becomes midnight to midnight, so only the start is kept artificially
+        $this->updatePage(3, ['tx_golbevents_start' => '2026-05-04 00:00:00', 'tx_golbevents_end' => null]);
+        $this->subject->synchronizeEvent(3);
+        [$midnight] = $this->occurrenceRowsOf(3);
+        self::assertNotSame($before['uid'], $midnight['uid'], 'a new start is a new occurrence');
+
+        $this->updatePage(3, ['tx_golbevents_all_day' => 1], ['tx_golbevents_all_day' => Connection::PARAM_INT]);
+        $this->subject->synchronizeEvent(3);
+
+        [$after] = $this->occurrenceRowsOf(3);
+        self::assertSame($midnight['uid'], $after['uid']);
+        self::assertSame(1, $after['all_day']);
+    }
+
+    #[Test]
+    public function changedStartReplacesTheOccurrence(): void
+    {
+        $this->subject->synchronizeEvent(3);
+        [$before] = $this->occurrenceRowsOf(3);
+
+        $this->updatePage(3, ['tx_golbevents_start' => '2026-05-05 19:30:00', 'tx_golbevents_end' => '2026-05-05 21:00:00']);
+        $this->subject->synchronizeEvent(3);
+
+        $rows = $this->occurrenceRowsOf(3);
+        self::assertCount(1, $rows);
+        self::assertNotSame($before['uid'], $rows[0]['uid']);
+        self::assertSame($before['start'] + 86400, $rows[0]['start']);
+    }
+
+    #[Test]
+    public function changedRecurrenceKeepsTheDatesThatStillExist(): void
+    {
+        $this->subject->synchronizeEvent(4);
+        $before = $this->occurrenceRowsOf(4);
+
+        // Every week instead of every second week: the existing dates stay, the weeks in between are added
+        $this->updatePage(4, ['tx_golbevents_recurrence_interval' => 1], ['tx_golbevents_recurrence_interval' => Connection::PARAM_INT]);
+        $count = $this->subject->synchronizeEvent(4);
+
+        $after = $this->occurrenceRowsOf(4);
+        self::assertCount($count, $after);
+        self::assertGreaterThan(count($before), count($after));
+        foreach ($before as $row) {
+            self::assertContains($row, $after, 'existing occurrence kept with its uid');
+        }
+    }
+
+    #[Test]
+    public function movingTheHorizonAddsOccurrencesAndKeepsTheExistingOnes(): void
+    {
+        $this->subject->synchronizeEvent(5);
+        $before = $this->occurrenceRowsOf(5);
+        self::assertCount(2, $before);
+
+        $this->freezeTime('2027-01-01 12:00:00');
+        $count = $this->subject->synchronizeEvent(5);
+
+        $after = $this->occurrenceRowsOf(5);
+        self::assertSame(3, $count);
+        self::assertSame($before, array_slice($after, 0, 2));
+        self::assertSame(self::serverIso('2028-07-14 00:00:00'), (new \DateTimeImmutable('@' . $after[2]['start']))->format('c'));
+    }
+
+    #[Test]
+    public function movedEventPageUpdatesThePidOfItsOccurrences(): void
+    {
+        $this->subject->synchronizeEvent(3);
+        [$before] = $this->occurrenceRowsOf(3);
+        self::assertSame(2, $before['pid']);
+
+        $this->updatePage(3, ['pid' => 1], ['pid' => Connection::PARAM_INT]);
+        $this->subject->synchronizeEvent(3);
+
+        [$after] = $this->occurrenceRowsOf(3);
+        self::assertSame($before['uid'], $after['uid']);
+        self::assertSame(1, $after['pid']);
+    }
+
+    #[Test]
+    public function softDeletedAndDuplicateOccurrenceRowsAreCleanedUp(): void
+    {
+        $this->subject->synchronizeEvent(3);
+        [$row] = $this->occurrenceRowsOf(3);
+        $connection = $this->getConnectionPool()->getConnectionForTable('tx_golbevents_domain_model_occurrence');
+        $connection->insert('tx_golbevents_domain_model_occurrence', ['pid' => 2, 'event' => 3, 'start' => $row['start'], 'end' => $row['end'], 'all_day' => 0]);
+        $connection->insert('tx_golbevents_domain_model_occurrence', ['pid' => 2, 'event' => 3, 'start' => 1, 'end' => 1, 'all_day' => 0, 'deleted' => 1]);
+        self::assertSame(3, $this->countRowsOfEventIncludingDeleted(3));
+
+        $this->subject->synchronizeEvent(3);
+
+        self::assertSame([$row], $this->occurrenceRowsOf(3));
+        self::assertSame(1, $this->countRowsOfEventIncludingDeleted(3));
+    }
+
+    /**
+     * The test helpers of the base class use the default restrictions and
+     * leave soft deleted rows out; the synchronizer sees them.
+     */
+    private function countRowsOfEventIncludingDeleted(int $eventUid): int
+    {
+        $queryBuilder = $this->getConnectionPool()->getQueryBuilderForTable('tx_golbevents_domain_model_occurrence');
+        $queryBuilder->getRestrictions()->removeAll();
+
+        return self::toInt(
+            $queryBuilder->count('uid')
+                ->from('tx_golbevents_domain_model_occurrence')
+                ->where($queryBuilder->expr()->eq('event', $queryBuilder->createNamedParameter($eventUid, Connection::PARAM_INT)))
+                ->executeQuery()
+                ->fetchOne()
+        );
     }
 
     #[Test]

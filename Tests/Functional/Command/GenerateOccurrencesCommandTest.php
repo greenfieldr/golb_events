@@ -48,7 +48,7 @@ final class GenerateOccurrencesCommandTest extends AbstractOccurrenceTestCase
         $exitCode = $this->tester->execute([]);
 
         self::assertSame(Command::SUCCESS, $exitCode);
-        self::assertStringContainsString('Regenerated the occurrences of 3 event(s) up to 2028-01-01.', $this->tester->getDisplay());
+        self::assertStringContainsString('Synchronized the occurrences of 3 event(s) up to 2028-01-01.', $this->tester->getDisplay());
         self::assertSame(1 + 32 + 2, $this->countAllOccurrences());
     }
 

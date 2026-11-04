@@ -65,14 +65,22 @@ How event dates are found
 =========================
 
 #.  Saving an event page (or one of its excluded dates, or the time zone
-    of its location) regenerates the *occurrences* of the event in the
+    of its location) synchronizes the *occurrences* of the event in the
     table ``tx_golbevents_domain_model_occurrence``: one row per date with
     the real start and end as UTC timestamps. The DataHandler hook also
-    reacts to copying, deleting, undeleting and publishing pages.
+    reacts to copying, moving, deleting, undeleting and publishing pages.
     Occurrences of never ending events are generated up to the horizon
     (extension setting ``horizonYears``); the command
-    ``golbevents:occurrences:generate`` regenerates all events, so the
+    ``golbevents:occurrences:generate`` synchronizes all events, so the
     scheduler keeps the horizon moving.
+
+    Occurrence records are **stable**: an existing row is matched by its
+    start and keeps its ``uid``; its end, all day flag and ``pid`` are
+    updated in place when they change. Only dates that no longer exist are
+    deleted and only new dates are inserted. Other extensions can therefore
+    reference occurrences by uid (for example to attach bookings) and will
+    only lose a reference when the editor really removes or moves that
+    date.
 
 #.  :php:`\Greenfieldr\GolbEvents\Recurrence\EventSchedule` captures the
     wall clock start and end, the time zone and the recurrence rule of an
