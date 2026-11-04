@@ -5,6 +5,34 @@ this file. The format is based on conventional commits; the major version
 follows the supported TYPO3 major version (14.x.x for TYPO3 14). The file is
 regenerated with git-cliff on every release.
 
+## [14.1.0] - 2026-11-04
+
+### Features
+
+- **recurrence:** The PSR-14 event `AfterOccurrencesSynchronizedEvent` is
+  dispatched after the occurrences of an event page were synchronized (by
+  the DataHandler hook, the command `golbevents:occurrences:generate` and
+  when the occurrences of deleted or orphaned pages are removed). It
+  carries the added, updated and removed occurrence records
+  (`OccurrenceRecord`: uid, pid, start, end, all day) and the number of
+  occurrences the event has now, so extensions that reference occurrences
+  can react to moved or removed dates
+
+### Bug fixes
+
+- **recurrence:** Occurrence records are kept stable: an existing
+  occurrence is matched by its start and keeps its uid, its end, all day
+  flag and pid are updated in place, only dates that no longer exist are
+  deleted and only new dates are inserted. Before, every save of an event
+  page deleted and reinserted all occurrences and changed their uids
+
+### Build and CI
+
+- The release workflow renders the notes of the pushed tag
+  (`git-cliff --current --use-branch-tags`) and fails when their version
+  differs from the tag; `--latest` picked the newest tag of the whole
+  repository by commit date
+
 ## [14.0.0] - 2026-11-04
 
 ### Features
